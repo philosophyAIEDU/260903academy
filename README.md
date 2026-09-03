@@ -73,6 +73,23 @@ npm run dev
 `next dev -p 3000`으로 고정되어 있습니다.) 다른 포트가 이미 사용 중이라면 그 포트를 비우고
 실행하세요.
 
+### 4. (배포 시) Netlify 등 호스팅에 환경변수 등록
+
+`.env.local`은 `.gitignore`에 포함되어 있어 **저장소에도, 배포 플랫폼에도 자동으로 올라가지
+않습니다.** Netlify 등에 배포한 뒤 "GG_API_KEY가 설정되어 있지 않습니다" 같은 에러가 보인다면,
+해당 사이트가 아직 환경변수를 모르기 때문입니다. Netlify 기준:
+
+1. Netlify 사이트 대시보드 → **Site configuration → Environment variables**
+2. `GG_API_KEY`, `NEXT_PUBLIC_KAKAO_MAP_KEY` 두 값을 각각 추가
+3. **Deploys → Trigger deploy(Clear cache and deploy site)**로 재배포 (환경변수는 다음 빌드부터
+   반영되며, 기존 배포에는 소급 적용되지 않습니다)
+4. 카카오 개발자 콘솔의 "플랫폼 > Web"에 배포된 도메인(예: `https://xxxx.netlify.app`)도
+   함께 등록하세요. `localhost:3000`만 등록된 상태로는 배포 환경에서 지도가 로드되지 않습니다.
+
+리포지토리에는 Netlify의 공식 Next.js 런타임(`@netlify/plugin-nextjs`)을 사용하도록
+`netlify.toml`이 포함되어 있어, API 라우트(`/api/academies`)를 포함한 App Router 기능이
+서버리스 함수로 정상 배포됩니다.
+
 브라우저에서 http://localhost:3000 접속 후, 시군을 선택하고 검색해보세요.
 
 ## ⚠️ API 응답 스키마 관련 안내
