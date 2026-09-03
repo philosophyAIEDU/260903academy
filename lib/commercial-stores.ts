@@ -76,9 +76,12 @@ export async function listStores(
   const partition = await loadPartition(query.sigunguCode, baseUrl);
   const limit = query.limit ?? DEFAULT_LIMIT;
 
+  const nameNeedle = query.nameQuery?.trim().toLowerCase();
+
   const matched = partition.filter((tuple) => {
-    const [, , smallCode, dongCode] = tuple;
+    const [name, branch, smallCode, dongCode] = tuple;
     if (query.dongCode && dongCode !== query.dongCode) return false;
+    if (nameNeedle && !`${name} ${branch}`.toLowerCase().includes(nameNeedle)) return false;
     if (query.smallCode) return smallCode === query.smallCode;
     if (query.midCode) return midCodeOf(smallCode) === query.midCode;
     if (query.largeCode) return largeCodeOf(smallCode) === query.largeCode;

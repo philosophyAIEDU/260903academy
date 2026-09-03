@@ -60,6 +60,8 @@ export interface StoreListQuery {
   largeCode?: string;
   midCode?: string;
   smallCode?: string;
+  /** 상호명/지점명 부분일치 검색어 (대소문자 무시) */
+  nameQuery?: string;
   /** 반환할 최대 업체 수 (기본 300) — 지도 마커 렌더링 성능을 위한 상한 */
   limit?: number;
 }

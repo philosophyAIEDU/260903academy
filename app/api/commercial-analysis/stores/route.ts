@@ -4,9 +4,10 @@ import { listStores } from "@/lib/commercial-stores";
 export const dynamic = "force-dynamic";
 
 /**
- * GET /api/commercial-analysis/stores?sigunguCode=&dongCode=&largeCode=&midCode=&smallCode=&limit=
+ * GET /api/commercial-analysis/stores?sigunguCode=&dongCode=&largeCode=&midCode=&smallCode=&nameQuery=&limit=
  * 지도에 표시할 업체 목록(업체명·주소·좌표)을 반환합니다. sigunguCode는 필수입니다
  * (업체 데이터가 시군구 단위 정적 파일로 나뉘어 있어, 한 번에 한 시군구만 조회합니다).
+ * nameQuery를 주면 상호명/지점명 부분일치로 추가 필터링합니다(대소문자 무시).
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -25,6 +26,7 @@ export async function GET(request: NextRequest) {
     largeCode: searchParams.get("largeCode")?.trim() || undefined,
     midCode: searchParams.get("midCode")?.trim() || undefined,
     smallCode: searchParams.get("smallCode")?.trim() || undefined,
+    nameQuery: searchParams.get("nameQuery")?.trim() || undefined,
     limit,
   };
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import CommercialMap from "@/components/analysis/CommercialMap";
-import { AlertIcon, MapPinIcon, SpinnerIcon } from "@/components/icons";
+import { AlertIcon, MapPinIcon, SearchIcon, SpinnerIcon } from "@/components/icons";
 import { downloadCsv } from "@/lib/csv-export";
 import type { CommercialAnalysisQuery, Store, StoreListResponse } from "@/types/commercial";
 
@@ -29,13 +29,14 @@ interface StoreMapPanelProps {
   query: CommercialAnalysisQuery | null;
 }
 
-function buildQueryString(query: CommercialAnalysisQuery): string {
+function buildQueryString(query: CommercialAnalysisQuery, nameQuery: string): string {
   const params = new URLSearchParams();
   if (query.sigunguCode) params.set("sigunguCode", query.sigunguCode);
   if (query.dongCode) params.set("dongCode", query.dongCode);
   if (query.largeCode) params.set("largeCode", query.largeCode);
   if (query.midCode) params.set("midCode", query.midCode);
   if (query.smallCode) params.set("smallCode", query.smallCode);
+  if (nameQuery) params.set("nameQuery", nameQuery);
   return params.toString();
 }
 
@@ -44,7 +45,23 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [nameInput, setNameInput] = useState("");
+  const [debouncedName, setDebouncedName] = useState("");
+
   const sigunguCode = query?.sigunguCode;
+
+  // 지역/업종 조건이 새로 제출되면 이전 검색어는 비웁니다 (다른 분석 맥락에 남아있지 않도록).
+  useEffect(() => {
+    setNameInput("");
+    setDebouncedName("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sigunguCode, query?.dongCode, query?.largeCode, query?.midCode, query?.smallCode]);
+
+  // 입력 중 매 글자마다 요청하지 않도록 350ms 디바운스합니다.
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedName(nameInput.trim()), 350);
+    return () => clearTimeout(timer);
+  }, [nameInput]);
 
   useEffect(() => {
     if (!sigunguCode) {
@@ -57,7 +74,7 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
     setLoading(true);
     setError(null);
 
-    fetch(`/api/commercial-analysis/stores?${buildQueryString(query!)}`)
+    fetch(`/api/commercial-analysis/stores?${buildQueryString(query!, debouncedName)}`)
       .then((res) => res.json())
       .then((body: StoreListResponse | { error: string }) => {
         if (cancelled) return;
@@ -80,7 +97,7 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
     };
     // query 객체 참조가 매번 바뀌므로 실제로 지도 조회에 영향을 주는 필드만 의존성으로 사용합니다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sigunguCode, query?.dongCode, query?.largeCode, query?.midCode, query?.smallCode]);
+  }, [sigunguCode, query?.dongCode, query?.largeCode, query?.midCode, query?.smallCode, debouncedName]);
 
   if (!sigunguCode) {
     return (
@@ -98,7 +115,7 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-panel">
-      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-emerald-50/70 via-white to-sky-50/50 px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 bg-gradient-to-r from-emerald-50/70 via-white to-sky-50/50 px-4 py-3">
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
           <span className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-emerald-500 to-sky-600 text-white">
             <MapPinIcon className="h-3.5 w-3.5" />
@@ -121,6 +138,19 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
         )}
       </div>
 
+      <div className="border-b border-slate-100 px-4 py-2.5">
+        <div className="relative max-w-xs">
+          <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            placeholder="업체명으로 찾기 (예: 스타벅스)"
+            className="w-full rounded-lg border border-slate-300 bg-white py-1.5 pl-8 pr-3 text-xs text-slate-800 shadow-sm transition-colors placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+          />
+        </div>
+      </div>
+
       {error && (
         <div className="flex items-start gap-2 px-4 py-3 text-xs text-rose-600">
           <AlertIcon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
@@ -134,6 +164,15 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
             <SpinnerIcon className="h-4 w-4 animate-spin text-emerald-400" />
             업체 위치를 불러오는 중...
           </div>
+        ) : data && data.stores.length === 0 ? (
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
+            <SearchIcon className="h-5 w-5 text-slate-300" />
+            <p className="text-sm text-slate-400">
+              {debouncedName
+                ? `"${debouncedName}"과(와) 일치하는 업체가 없습니다`
+                : "조건에 맞는 업체가 없습니다"}
+            </p>
+          </div>
         ) : (
           <CommercialMap stores={data?.stores ?? []} center={data?.center ?? null} />
         )}
@@ -142,7 +181,7 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
       {data?.truncated && (
         <p className="border-t border-slate-100 px-4 py-2 text-[11px] text-slate-400">
           업체가 많아 대표로 {data.stores.length.toLocaleString()}개만 지도에 표시했습니다. 더
-          자세히 보려면 행정동이나 업종을 좁혀서 다시 분석해보세요.
+          자세히 보려면 행정동·업종을 좁히거나 업체명으로 검색해보세요.
         </p>
       )}
     </div>
