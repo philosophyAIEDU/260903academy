@@ -37,12 +37,13 @@ export default function AcademyList({
             <button
               type="button"
               onClick={() => onSelect(academy)}
-              className={`flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors hover:bg-slate-50 ${
-                active ? "bg-indigo-50/70" : ""
+              className={`flex w-full items-start gap-3 border-l-[3px] py-3.5 pr-4 text-left transition-colors hover:bg-slate-50 ${
+                active
+                  ? "border-indigo-500 bg-indigo-50/60 pl-[13px]"
+                  : "border-transparent pl-4"
               }`}
             >
-              {active && <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-indigo-500" />}
-              <div className={`min-w-0 flex-1 ${active ? "" : "pl-5"}`}>
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <p className="truncate text-sm font-semibold text-slate-800">
                     {academy.name}

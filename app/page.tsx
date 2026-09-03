@@ -7,6 +7,7 @@ import AcademyList from "@/components/AcademyList";
 import DataSourceNotice from "@/components/DataSourceNotice";
 import IndustryStats from "@/components/IndustryStats";
 import { AlertIcon, ListIcon, MapIcon } from "@/components/icons";
+import { DATA_REFERENCE_DATE } from "@/lib/constants";
 import { useFavorites } from "@/hooks/useFavorites";
 import type { Academy, AcademySearchQuery, AcademySearchResponse } from "@/types/academy";
 
@@ -65,11 +66,11 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white shadow-sm">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-indigo-700 text-sm font-bold text-white shadow-sm">
             경
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="truncate text-base font-bold leading-tight text-slate-900">
               경기도 학원 검색
             </h1>
@@ -77,10 +78,15 @@ export default function HomePage() {
               경기데이터드림 공공데이터 기반 학원 위치 검색
             </p>
           </div>
+          <span className="hidden shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-500 sm:flex">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            데이터 기준 {DATA_REFERENCE_DATE}
+          </span>
         </div>
+        <div className="h-0.5 w-full bg-gradient-to-r from-indigo-600 via-indigo-400 to-sky-400" />
       </header>
 
-      <main className="mx-auto flex max-w-7xl flex-col gap-4 p-4">
+      <main className="mx-auto flex max-w-7xl flex-col gap-4 p-4 sm:gap-5 sm:p-6">
         <SearchForm onSearch={runSearch} loading={loading} />
 
         {error && (
@@ -136,13 +142,24 @@ export default function HomePage() {
           </button>
         </div>
 
-        <div className="grid min-h-[560px] flex-1 grid-cols-1 gap-4 lg:grid-cols-5">
+        <div className="grid min-h-[560px] flex-1 grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-5">
           <section
-            className={`flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:col-span-3 lg:flex ${
+            className={`flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-panel lg:col-span-3 lg:flex ${
               mobilePanel === "map" ? "flex" : "hidden"
             }`}
           >
-            <div className="flex h-full min-h-[460px] flex-col">
+            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+              <h2 className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                <MapIcon className="h-4 w-4 text-indigo-600" />
+                지도
+              </h2>
+              {hasSearched && !loading && (
+                <span className="text-xs text-slate-400">
+                  {visibleAcademies.length.toLocaleString()}건 표시 중
+                </span>
+              )}
+            </div>
+            <div className="min-h-0 flex-1">
               {loading ? (
                 <MapSkeleton />
               ) : (
@@ -156,14 +173,19 @@ export default function HomePage() {
           </section>
 
           <section
-            className={`min-h-[460px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:col-span-2 lg:flex ${
+            className={`flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-panel lg:col-span-2 lg:flex ${
               mobilePanel === "list" ? "flex" : "hidden"
             }`}
           >
-            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
-              <h2 className="text-sm font-semibold text-slate-700">검색 결과</h2>
+            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+              <h2 className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                <ListIcon className="h-4 w-4 text-indigo-600" />
+                검색 결과
+              </h2>
               {hasSearched && !loading && (
-                <span className="text-xs text-slate-400">{visibleAcademies.length}건</span>
+                <span className="text-xs text-slate-400">
+                  {visibleAcademies.length.toLocaleString()}건
+                </span>
               )}
             </div>
             <div className="min-h-0 flex-1">
@@ -186,7 +208,7 @@ export default function HomePage() {
           </section>
         </div>
 
-        <footer className="border-t border-slate-200 pt-3 pb-2">
+        <footer className="pb-2 pt-1">
           <DataSourceNotice />
         </footer>
       </main>
