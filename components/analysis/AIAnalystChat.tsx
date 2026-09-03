@@ -20,7 +20,7 @@ interface AIAnalystChatProps {
   result: CommercialAnalysisResponse;
 }
 
-const KICKOFF_MESSAGE = "이 상권을 종합적으로 분석하고 조언해주세요.";
+const KICKOFF_MESSAGE = "이 상권을 종합적으로 분석하고 전략적 조언을 해주세요.";
 
 function ModelSelect({
   model,
@@ -36,15 +36,17 @@ function ModelSelect({
       <select
         value={model}
         onChange={(e) => onChange(e.target.value)}
-        className={`appearance-none rounded-lg border border-slate-700 bg-slate-800 py-1.5 pl-2.5 text-[11px] font-medium text-slate-300 shadow-sm transition-colors hover:bg-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/25 ${compact ? "pr-6" : "pr-7"}`}
+        className={`appearance-none rounded-xl border border-slate-200 bg-white py-1.5 pl-3 text-xs font-semibold text-slate-700 shadow-sm transition-colors hover:border-slate-300 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 ${
+          compact ? "pr-7" : "pr-8"
+        }`}
       >
         {GEMINI_MODELS.map((m) => (
-          <option key={m.id} value={m.id} className="bg-slate-800 text-slate-100">
+          <option key={m.id} value={m.id} className="text-slate-800">
             {m.label}
           </option>
         ))}
       </select>
-      <ChevronDownIcon className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-500" />
+      <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
     </div>
   );
 }
@@ -64,44 +66,47 @@ function ApiKeyForm({
   const [reveal, setReveal] = useState(false);
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-panel sm:p-6">
-      <div className="mb-3 flex items-center gap-2">
-        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-violet-500 to-fuchsia-600">
-          <KeyIcon className="h-3.5 w-3.5 text-white" />
+    <div className="rounded-2xl border border-amber-200/80 bg-gradient-to-br from-white via-amber-50/20 to-white p-6 shadow-panel">
+      <div className="mb-3 flex items-center gap-2.5">
+        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-md">
+          <KeyIcon className="h-4 w-4" />
         </span>
-        <h3 className="text-sm font-semibold text-slate-100">Gemini API 키 설정</h3>
+        <div>
+          <h3 className="text-sm font-bold text-slate-900">Gemini AI Executive API 키 설정</h3>
+          <p className="text-[11px] text-slate-500">지능형 상권 심층 자문 엔진 구동</p>
+        </div>
       </div>
-      <p className="mb-3 text-xs text-slate-400">
-        AI 상권 분석가는 Google Gemini를 사용합니다. 아래에 본인의 Gemini API 키를 입력하세요.{" "}
-        <span className="font-medium text-slate-300">
-          키는 이 브라우저에만 저장되며, 저희 서버에는 저장되지 않습니다.
+      <p className="mb-4 text-xs leading-relaxed text-slate-600">
+        AI 상권 분석가는 Google Gemini 최신 모델을 통해 상권 빅데이터를 종합 추론합니다. 본인의 Gemini API 키를 입력해주세요.{" "}
+        <span className="font-semibold text-slate-800">
+          키는 안전하게 브라우저 로컬 스토리지에만 보관되며 외부 서버로 절대 전송되지 않습니다.
         </span>{" "}
-        키가 없다면{" "}
+        (
         <a
           href="https://aistudio.google.com/apikey"
           target="_blank"
           rel="noreferrer"
-          className="font-medium text-violet-400 underline underline-offset-2"
+          className="font-bold text-amber-700 underline underline-offset-2 hover:text-amber-800"
         >
-          Google AI Studio
+          Google AI Studio 무료 발급
         </a>
-        에서 무료로 발급받을 수 있습니다.
+        )
       </p>
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="flex flex-col gap-2.5 sm:flex-row">
         <div className="relative flex-1">
           <input
             type={reveal ? "text" : "password"}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder="Gemini API 키 붙여넣기"
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 py-2.5 pl-3 pr-16 text-sm text-slate-100 shadow-sm transition-colors placeholder:text-slate-500 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/25"
+            placeholder="AI Studio API 키 입력 (예: AIzaSy...)"
+            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-3.5 pr-16 text-sm font-mono text-slate-800 shadow-sm transition-colors placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
           />
           <button
             type="button"
             onClick={() => setReveal((v) => !v)}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-500 hover:text-slate-300"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-slate-700"
           >
-            {reveal ? "숨기기" : "보기"}
+            {reveal ? "숨김" : "보기"}
           </button>
         </div>
         <div className="flex gap-2">
@@ -109,17 +114,17 @@ function ApiKeyForm({
             type="button"
             disabled={!draft.trim()}
             onClick={() => onSave(draft)}
-            className="flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:from-slate-700 disabled:to-slate-700 disabled:text-slate-400"
+            className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 px-5 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:from-amber-700 hover:to-amber-800 hover:shadow-gold-glow disabled:cursor-not-allowed disabled:opacity-50"
           >
-            저장
+            안전하게 저장
           </button>
           {showCancel && onCancel && (
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm font-medium text-slate-400 shadow-sm hover:bg-slate-700"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 shadow-sm hover:bg-slate-50"
             >
-              취소
+              닫기
             </button>
           )}
         </div>
@@ -140,7 +145,6 @@ export default function AIAnalystChat({ result }: AIAnalystChatProps) {
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 새 지역·업종으로 다시 분석하면 이전 대화 맥락은 더 이상 유효하지 않으므로 초기화합니다.
   useEffect(() => {
     setMessages([]);
     setError(null);
@@ -196,85 +200,94 @@ export default function AIAnalystChat({ result }: AIAnalystChatProps) {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-panel">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 bg-gradient-to-r from-violet-500/[0.08] via-slate-900 to-fuchsia-500/[0.05] px-4 py-3">
-        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-200">
-          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white">
-            <SparklesIcon className="h-3.5 w-3.5" />
+    <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-panel">
+      {/* 헤더 */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-gradient-to-r from-amber-50/50 via-white to-indigo-50/40 px-5 py-3.5">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-sm">
+            <SparklesIcon className="h-4 w-4" />
           </span>
-          AI 상권 분석가
-        </h3>
-        <div className="flex items-center gap-1.5">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-extrabold text-slate-900">AI Executive Market Advisor</h3>
+              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.2 text-[10px] font-bold text-amber-800">
+                PRO INTEL
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500">실시간 상권 빅데이터 기반 종합 심층 자문</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
           <ModelSelect model={model} onChange={setModel} />
           <button
             type="button"
             onClick={() => setShowKeySettings(true)}
-            className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-[11px] font-medium text-slate-400 shadow-sm transition-colors hover:bg-slate-700"
+            className="flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900"
           >
-            <KeyIcon className="h-3 w-3" />키 변경
+            <KeyIcon className="h-3 w-3 text-slate-400" />
+            키 관리
           </button>
         </div>
       </div>
 
       {messages.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 p-8 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-400 ring-1 ring-violet-500/20">
-            <SparklesIcon className="h-6 w-6" />
+        <div className="flex flex-col items-center justify-center gap-4 p-8 text-center sm:p-10">
+          <span className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-amber-50 to-amber-100/70 text-amber-600 ring-1 ring-amber-200/60 shadow-inner">
+            <SparklesIcon className="h-7 w-7" />
           </span>
-          <div>
-            <p className="text-sm font-medium text-slate-300">
-              지금 분석 중인 지역·업종 데이터를 바탕으로 AI 상권 분석가와 대화해보세요
-            </p>
-            <p className="mt-1 text-xs text-slate-500">
-              경쟁강도, 업종 공백 등 위 통계를 근거로 조언을 드립니다. 이어서 자유롭게 질문할 수
-              있어요.
+          <div className="max-w-md">
+            <h4 className="text-base font-bold text-slate-900">
+              현재 분석 중인 상권 데이터를 토대로 AI 심층 조언을 받아보세요
+            </h4>
+            <p className="mt-1.5 text-xs leading-relaxed text-slate-500">
+              선택한 지역의 점포 과밀도, 하위 업종 공백, 행정동별 분포 데이터를 다각도로 교차 분석하여
+              신규 출점 및 타당성 분석 조언을 제공합니다.
             </p>
           </div>
           <button
             type="button"
             onClick={() => sendMessage(KICKOFF_MESSAGE)}
             disabled={loading}
-            className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-2.5 text-sm font-semibold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:from-slate-700 disabled:to-slate-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-6 py-3 text-sm font-bold text-white shadow-md transition-all duration-200 hover:from-amber-600 hover:to-amber-700 hover:shadow-gold-glow disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? (
               <>
-                <SpinnerIcon className="h-4 w-4 animate-spin" />
-                분석 중...
+                <SpinnerIcon className="h-4 w-4 animate-spin text-amber-400" />
+                <span>데이터 다각도 종합 분석 중...</span>
               </>
             ) : (
               <>
-                <SparklesIcon className="h-4 w-4" />
-                AI 분석 시작하기
+                <SparklesIcon className="h-4 w-4 text-amber-400" />
+                <span>AI 상권 종합 브리핑 받기</span>
               </>
             )}
           </button>
         </div>
       ) : (
         <>
-          <div ref={scrollRef} className="thin-scrollbar max-h-[480px] overflow-y-auto p-4">
-            <ul className="flex flex-col gap-3">
-              {messages.map((m, i) => (
-                <li key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div
-                    className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                      m.role === "user"
-                        ? "bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white"
-                        : "bg-slate-800 text-slate-200"
-                    }`}
-                  >
-                    {m.text}
-                  </div>
-                </li>
-              ))}
-              {loading && (
-                <li className="flex justify-start">
-                  <div className="flex items-center gap-1.5 rounded-2xl bg-slate-800 px-3.5 py-2.5 text-sm text-slate-400">
-                    <SpinnerIcon className="h-3.5 w-3.5 animate-spin" />
-                    AI 상권 분석가가 답변을 작성하고 있어요...
-                  </div>
-                </li>
-              )}
-            </ul>
+          <div ref={scrollRef} className="thin-scrollbar max-h-[500px] overflow-y-auto p-5 space-y-4">
+            {messages.map((m, i) => (
+              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                    m.role === "user"
+                      ? "bg-gradient-to-br from-slate-900 to-indigo-950 text-white shadow-sm"
+                      : "border border-slate-200/90 bg-slate-50/80 text-slate-800 shadow-sm"
+                  }`}
+                >
+                  {m.text}
+                </div>
+              </div>
+            ))}
+            {loading && (
+              <div className="flex justify-start">
+                <div className="flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-xs font-semibold text-amber-900 shadow-sm">
+                  <SpinnerIcon className="h-4 w-4 animate-spin text-amber-600" />
+                  AI 분석가가 종합 데이터 모델링 및 답변을 생성하고 있습니다...
+                </div>
+              </div>
+            )}
           </div>
 
           <form
@@ -282,7 +295,7 @@ export default function AIAnalystChat({ result }: AIAnalystChatProps) {
               e.preventDefault();
               sendMessage(input);
             }}
-            className="flex items-end gap-2 border-t border-slate-800 p-3"
+            className="flex items-end gap-2 border-t border-slate-100 bg-slate-50/40 p-4"
           >
             <textarea
               value={input}
@@ -293,14 +306,14 @@ export default function AIAnalystChat({ result }: AIAnalystChatProps) {
                   sendMessage(input);
                 }
               }}
-              placeholder="추가로 궁금한 점을 물어보세요 (예: 대신 어떤 업종이 좋을까요?)"
+              placeholder="추가로 궁금한 점을 질의하세요 (예: 이 지역에서 틈새시장으로 가장 유망한 업종은 무엇인가요?)"
               rows={1}
-              className="max-h-28 flex-1 resize-none rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 shadow-sm transition-colors placeholder:text-slate-500 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/25"
+              className="max-h-32 flex-1 resize-none rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm transition-colors placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
             />
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:from-slate-700 disabled:to-slate-700"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-amber-400 shadow-sm transition-all hover:bg-amber-600 hover:text-white disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
               aria-label="전송"
             >
               <SendIcon className="h-4 w-4" />
@@ -310,13 +323,13 @@ export default function AIAnalystChat({ result }: AIAnalystChatProps) {
       )}
 
       {error && (
-        <div className="flex items-start gap-2 border-t border-slate-800 px-4 py-3 text-xs text-rose-400">
+        <div className="flex items-start gap-2 border-t border-rose-100 bg-rose-50 px-4 py-3 text-xs text-rose-700">
           <AlertIcon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <p className="flex-1">{error}</p>
           <button
             type="button"
             onClick={() => setError(null)}
-            className="shrink-0 text-rose-400/70 hover:text-rose-300"
+            className="shrink-0 text-rose-600 hover:text-rose-800"
             aria-label="오류 닫기"
           >
             <XIcon className="h-3.5 w-3.5" />
@@ -324,9 +337,9 @@ export default function AIAnalystChat({ result }: AIAnalystChatProps) {
         </div>
       )}
 
-      <p className="border-t border-slate-800 px-4 py-2 text-[11px] text-slate-500">
-        AI 답변은 점포 수 데이터를 근거로 한 참고용 의견이며, 실제 상권 조사를 대체하지 않습니다.
-      </p>
+      <div className="border-t border-slate-100 bg-slate-50/80 px-5 py-2.5 text-[11px] text-slate-400 flex items-center justify-between">
+        <span>💡 AI 분석 결과는 등록 점포 통계를 토대로 한 참고 의견이며, 투자 및 창업의 최종 판단은 현장 실사를 병행하시기 바랍니다.</span>
+      </div>
     </div>
   );
 }

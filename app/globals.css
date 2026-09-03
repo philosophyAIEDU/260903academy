@@ -5,28 +5,56 @@
 html,
 body {
   height: 100%;
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
 }
 
-/* 다크 프로페셔널 테마 — 어두운 슬레이트 배경 위에 은은한 브랜드 톤 글로우 */
+/* 프리미엄 럭셔리 라이트 테마 — 은은한 웜 펄 캔버스 & 샴페인 골드/사파이어 앰비언트 오라 */
 body {
-  @apply text-slate-100 antialiased;
-  background-color: #05070d;
-  background-image: radial-gradient(1100px circle at 12% -10%, rgba(99, 102, 241, 0.16), transparent 45%),
-    radial-gradient(900px circle at 100% 0%, rgba(56, 189, 248, 0.1), transparent 42%),
-    radial-gradient(900px circle at 40% 110%, rgba(139, 92, 246, 0.08), transparent 45%);
+  @apply text-slate-800 antialiased;
+  background-color: #f8fafc;
+  background-image:
+    radial-gradient(1200px circle at 15% -8%, rgba(245, 158, 11, 0.07), transparent 50%),
+    radial-gradient(1000px circle at 90% 5%, rgba(59, 130, 246, 0.06), transparent 45%),
+    radial-gradient(1200px circle at 50% 110%, rgba(16, 185, 129, 0.05), transparent 50%),
+    radial-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+  background-size: auto, auto, auto, 28px 28px;
   background-attachment: fixed;
 }
 
-/* 리스트/사이드 패널의 얇은 스크롤바 (웹킷 계열) */
+/* 럭셔리 글래스 & 크리스탈 카드 유틸리티 */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+}
+
+.glass-panel-gold {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(254, 243, 199, 0.25));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  box-shadow: 0 12px 35px -10px rgba(245, 158, 11, 0.12), 0 1px 3px 0 rgba(245, 158, 11, 0.05);
+}
+
+.luxury-border {
+  border: 1px solid rgba(226, 232, 240, 0.85);
+}
+
+/* 리스트/사이드 패널의 럭셔리 스크롤바 */
 .thin-scrollbar::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 .thin-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 .thin-scrollbar::-webkit-scrollbar-thumb {
-  background-color: theme("colors.slate.700");
+  background-color: rgba(203, 213, 225, 0.8);
   border-radius: 9999px;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(148, 163, 184, 0.9);
 }
 
 @keyframes shimmer {
@@ -37,7 +65,7 @@ body {
 .skeleton {
   position: relative;
   overflow: hidden;
-  background-color: theme("colors.slate.800");
+  background-color: #f1f5f9;
 }
 .skeleton::after {
   content: "";
@@ -47,7 +75,7 @@ body {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.8),
     transparent
   );
   animation: shimmer 1.6s infinite;

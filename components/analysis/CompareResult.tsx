@@ -24,53 +24,75 @@ function CompareRow({
   valueA,
   valueB,
   higherIsMoreCompetitive = false,
+  unit = "",
 }: {
   label: string;
   valueA: number;
   valueB: number;
   higherIsMoreCompetitive?: boolean;
+  unit?: string;
 }) {
   const aWins = valueA > valueB;
   const bWins = valueB > valueA;
-  // "경쟁강도" 류 지표는 낮은 쪽이 유리하므로 강조 색을 반대로 씁니다.
   const aGood = higherIsMoreCompetitive ? !aWins || valueA === valueB : aWins;
   const bGood = higherIsMoreCompetitive ? !bWins || valueA === valueB : bWins;
 
   return (
-    <tr className="border-b border-slate-800 last:border-0">
-      <td className="py-2.5 pr-3 text-xs font-medium text-slate-400">{label}</td>
+    <tr className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors">
+      <td className="py-3.5 pr-4 text-xs font-bold text-slate-700">{label}</td>
       <td
-        className={`py-2.5 px-2 text-right text-sm font-semibold ${aGood ? "text-blue-400" : "text-slate-300"}`}
+        className={`py-3.5 px-3 text-right text-sm font-extrabold ${
+          aGood ? "text-indigo-600 bg-indigo-50/40 rounded-lg" : "text-slate-700"
+        }`}
       >
         {valueA.toLocaleString()}
+        {unit && <span className="ml-0.5 text-xs font-normal text-slate-400">{unit}</span>}
       </td>
       <td
-        className={`py-2.5 pl-2 text-right text-sm font-semibold ${bGood ? "text-orange-400" : "text-slate-300"}`}
+        className={`py-3.5 pl-3 text-right text-sm font-extrabold ${
+          bGood ? "text-amber-600 bg-amber-50/40 rounded-lg" : "text-slate-700"
+        }`}
       >
         {valueB.toLocaleString()}
+        {unit && <span className="ml-0.5 text-xs font-normal text-slate-400">{unit}</span>}
       </td>
     </tr>
   );
 }
 
-function MiniBreakdown({ result, color }: { result: CommercialAnalysisResponse; color: string }) {
+function MiniBreakdown({
+  result,
+  color,
+  textColor,
+}: {
+  result: CommercialAnalysisResponse;
+  color: string;
+  textColor: string;
+}) {
   const top = result.industryBreakdown.slice(0, 5);
   if (top.length === 0) {
-    return <p className="text-xs text-slate-500">세부 업종 분포가 없습니다.</p>;
+    return (
+      <div className="py-6 text-center text-xs text-slate-400">
+        세부 업종 분포 데이터가 없습니다.
+      </div>
+    );
   }
   const max = top[0]!.count;
   return (
-    <ul className="flex flex-col gap-2">
-      {top.map((item) => (
+    <ul className="flex flex-col gap-2.5">
+      {top.map((item, idx) => (
         <li key={item.code}>
-          <div className="mb-0.5 flex items-center justify-between text-[11px]">
-            <span className="truncate font-medium text-slate-300">{item.name}</span>
-            <span className="shrink-0 text-slate-500">{item.count.toLocaleString()}개</span>
+          <div className="mb-1 flex items-center justify-between text-xs">
+            <span className="truncate font-medium text-slate-700">
+              <span className="font-bold text-slate-400 mr-1.5">{idx + 1}.</span>
+              {item.name}
+            </span>
+            <span className={`shrink-0 font-bold ${textColor}`}>{item.count.toLocaleString()}개</span>
           </div>
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
             <div
-              className={`h-full rounded-full ${color}`}
-              style={{ width: max > 0 ? `${(item.count / max) * 100}%` : "0%" }}
+              className={`h-full rounded-full transition-all duration-500 ${color}`}
+              style={{ width: max > 0 ? `${Math.max(3, (item.count / max) * 100)}%` : "0%" }}
             />
           </div>
         </li>
@@ -86,9 +108,9 @@ function exportCompareCsv(
   labelB: string
 ) {
   const rows: (string | number)[][] = [
-    ["지역 비교 결과"],
-    ["항목", labelA, labelB],
-    ["조건", scopeLabel(a.scope), scopeLabel(b.scope)],
+    ["지역 비교 분석 리포트 (GG Commercial AI)"],
+    ["비교 항목", labelA, labelB],
+    ["상세 조건", scopeLabel(a.scope), scopeLabel(b.scope)],
     ["선택 조건 점포 수", a.totalCount, b.totalCount],
     ["선택 지역 전체 업종 점포 수", a.regionTotalCount, b.regionTotalCount],
     ["선택 지역 내 비중(%)", a.sharePctOfRegion, b.sharePctOfRegion],
@@ -99,73 +121,101 @@ function exportCompareCsv(
       ["비교 기준", a.saturation.baselineLabel, b.saturation.baselineLabel]
     );
   }
-  downloadCsv(`상권비교_${labelA}_vs_${labelB}.csv`, rows);
+  downloadCsv(`상권비교리포트_${labelA}_vs_${labelB}.csv`, rows);
 }
 
 export default function CompareResult({ a, b, labelA, labelB }: CompareResultProps) {
   return (
-    <div className="flex animate-fade-up flex-col gap-4">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-medium text-slate-500">
-          <span className="font-semibold text-blue-400">{labelA}</span> vs{" "}
-          <span className="font-semibold text-orange-400">{labelB}</span>
-        </p>
+    <div className="flex animate-fade-up flex-col gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-panel">
+        <div className="flex items-center gap-2">
+          <span className="flex h-2.5 w-2.5 rounded-full bg-indigo-600" />
+          <span className="text-sm font-bold text-indigo-700">{labelA}</span>
+          <span className="text-xs text-slate-400 font-bold">VS</span>
+          <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500" />
+          <span className="text-sm font-bold text-amber-800">{labelB}</span>
+          <span className="text-xs text-slate-400 ml-2">정밀 상권 비교 대조 분석</span>
+        </div>
         <button
           type="button"
           onClick={() => exportCompareCsv(a, b, labelA, labelB)}
-          className="shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 shadow-sm transition-colors hover:bg-slate-700"
+          className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-100"
         >
-          CSV 다운로드
+          비교 데이터 CSV 다운로드
         </button>
       </div>
 
-      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-panel sm:p-6">
-        <div className="mb-4 grid grid-cols-[1fr_auto_auto] gap-2 text-xs">
-          <span />
-          <span className="text-right font-semibold text-blue-400">{labelA}</span>
-          <span className="text-right font-semibold text-orange-400">{labelB}</span>
+      {/* 비교 매트릭스 테이블 */}
+      <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-6 shadow-panel">
+        <div className="mb-4 grid grid-cols-[1fr_auto_auto] gap-4 border-b border-slate-100 pb-3 text-xs">
+          <span className="font-bold text-slate-400">지표 항목</span>
+          <span className="w-28 text-right font-extrabold text-indigo-700 bg-indigo-50 px-2 py-1 rounded-lg">
+            {labelA}
+          </span>
+          <span className="w-28 text-right font-extrabold text-amber-800 bg-amber-50 px-2 py-1 rounded-lg">
+            {labelB}
+          </span>
         </div>
         <table className="w-full border-collapse">
           <tbody>
-            <CompareRow label="선택 조건 점포 수" valueA={a.totalCount} valueB={b.totalCount} />
+            <CompareRow label="선택 조건 점포 수" valueA={a.totalCount} valueB={b.totalCount} unit="개" />
             <CompareRow
-              label="지역 내 비중(%)"
+              label="지역 내 비중"
               valueA={a.sharePctOfRegion}
               valueB={b.sharePctOfRegion}
+              unit="%"
             />
             <CompareRow
-              label="지역 전체 업종 점포 수"
+              label="지역 전체 업종 점포 모수"
               valueA={a.regionTotalCount}
               valueB={b.regionTotalCount}
+              unit="개"
             />
             {a.saturation && b.saturation && (
               <CompareRow
-                label="경쟁강도 배율"
+                label="경쟁강도 배율 (낮을수록 유리)"
                 valueA={a.saturation.ratio ?? 0}
                 valueB={b.saturation.ratio ?? 0}
                 higherIsMoreCompetitive
+                unit="배"
               />
             )}
           </tbody>
         </table>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-panel sm:p-6">
-          <h3 className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-blue-400">
-            <MapPinIcon className="h-4 w-4" />
-            {labelA}
-          </h3>
-          <p className="mb-3 text-[11px] text-slate-500">{scopeLabel(a.scope)}</p>
-          <MiniBreakdown result={a} color="bg-blue-500" />
+      {/* 두 지역의 상위 업종 분포 카드 */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="rounded-2xl border border-indigo-100 bg-white p-6 shadow-panel">
+          <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 className="flex items-center gap-2 text-sm font-bold text-indigo-900">
+              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-xs">
+                <MapPinIcon className="h-3.5 w-3.5" />
+              </span>
+              {labelA} 상위 업종
+            </h3>
+            <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-[10px] font-bold text-indigo-700">
+              A 지역
+            </span>
+          </div>
+          <p className="mb-4 text-xs text-slate-500 truncate">{scopeLabel(a.scope)}</p>
+          <MiniBreakdown result={a} color="bg-gradient-to-r from-indigo-500 to-indigo-600" textColor="text-indigo-700" />
         </div>
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-panel sm:p-6">
-          <h3 className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-orange-400">
-            <BuildingIcon className="h-4 w-4" />
-            {labelB}
-          </h3>
-          <p className="mb-3 text-[11px] text-slate-500">{scopeLabel(b.scope)}</p>
-          <MiniBreakdown result={b} color="bg-orange-500" />
+
+        <div className="rounded-2xl border border-amber-100 bg-white p-6 shadow-panel">
+          <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 className="flex items-center gap-2 text-sm font-bold text-amber-950">
+              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-amber-600 text-white shadow-xs">
+                <BuildingIcon className="h-3.5 w-3.5" />
+              </span>
+              {labelB} 상위 업종
+            </h3>
+            <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold text-amber-800">
+              B 지역
+            </span>
+          </div>
+          <p className="mb-4 text-xs text-slate-500 truncate">{scopeLabel(b.scope)}</p>
+          <MiniBreakdown result={b} color="bg-gradient-to-r from-amber-500 to-amber-600" textColor="text-amber-800" />
         </div>
       </div>
     </div>

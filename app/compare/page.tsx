@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import ExecutiveHeader from "@/components/ExecutiveHeader";
 import RegionIndustryPicker from "@/components/analysis/RegionIndustryPicker";
 import CompareResult from "@/components/analysis/CompareResult";
 import DataSourceNotice from "@/components/DataSourceNotice";
-import { AlertIcon, SearchIcon } from "@/components/icons";
+import { AlertIcon, SearchIcon, SparklesIcon, SpinnerIcon } from "@/components/icons";
 import type {
   CommercialAnalysisQuery,
   CommercialAnalysisResponse,
@@ -33,7 +33,7 @@ function regionLabel(
   const dong = options.dong.find((d) => d.code === query.dongCode);
   const sigungu = options.sigungu.find((s) => s.code === query.sigunguCode);
   const sido = options.sido.find((s) => s.code === query.sidoCode);
-  return dong?.name ?? sigungu?.name ?? sido?.name ?? "전체";
+  return dong?.name ?? sigungu?.name ?? sido?.name ?? "전체 지역";
 }
 
 async function fetchAnalysis(query: CommercialAnalysisQuery) {
@@ -94,57 +94,50 @@ export default function ComparePage() {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-30 overflow-hidden bg-gradient-to-r from-blue-700 via-indigo-700 to-orange-700 shadow-lg shadow-black/40">
-        <div
-          className="pointer-events-none absolute -left-14 -top-16 h-52 w-52 animate-blob rounded-full bg-white/5 blur-3xl"
-          aria-hidden="true"
-        />
-        <div
-          className="pointer-events-none absolute -right-10 -top-24 h-64 w-64 animate-blob rounded-full bg-orange-400/10 blur-3xl [animation-delay:2s]"
-          aria-hidden="true"
-        />
-        <div className="relative mx-auto flex max-w-7xl items-center gap-3 px-4 py-4 sm:px-6">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-base font-bold text-white shadow-inner ring-1 ring-white/15 backdrop-blur">
-            비교
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-lg font-bold leading-tight text-white">지역 비교</h1>
-            <p className="truncate text-xs leading-tight text-blue-100/80">
-              후보지 두 곳을 나란히 비교해보세요
-            </p>
-          </div>
-          <Link
-            href="/"
-            className="hidden shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white ring-1 ring-white/15 backdrop-blur transition-colors hover:bg-white/20 sm:flex"
-          >
-            상권분석으로
-          </Link>
-        </div>
-      </header>
+      <ExecutiveHeader
+        currentTab="compare"
+        subtitle="두 상권 후보지의 점포 수·밀집도·경쟁 강도 1:1 정밀 대조 분석"
+      />
 
-      <main className="mx-auto flex max-w-7xl flex-col gap-4 p-4 sm:gap-5 sm:p-6">
-        <div className="flex items-center justify-between gap-2 sm:hidden">
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-300 shadow-sm"
-          >
-            ← 상권분석으로
-          </Link>
+      <main className="mx-auto flex max-w-7xl flex-col gap-6 p-4 sm:p-6 lg:p-8">
+        {/* 상단 럭셔리 배너 */}
+        <div className="rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-amber-50/20 to-slate-50/70 p-6 sm:p-8 shadow-panel">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-800">
+                  <SparklesIcon className="h-3.5 w-3.5 text-amber-600" />
+                  후보지 1:1 비교 대조 분석
+                </span>
+                <span className="text-xs text-slate-400">|</span>
+                <span className="text-xs font-medium text-slate-500">
+                  입지 타당성 및 경쟁력 매트릭스
+                </span>
+              </div>
+              <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+                지역별 상권 비교 인텔리전스
+              </h1>
+              <p className="mt-1 text-sm text-slate-600 max-w-2xl leading-relaxed">
+                출점 및 창업을 고려 중인 두 개 후보 지역을 나란히 설정하여 총 점포 규모, 타깃 업종 점유 비중,
+                경쟁강도 배율을 한눈에 대조하세요.
+              </p>
+            </div>
+          </div>
         </div>
 
         {optionsError && (
-          <div className="flex items-start gap-2.5 rounded-xl border border-rose-500/20 bg-rose-500/10 px-4 py-3.5 text-sm text-rose-300">
-            <AlertIcon className="mt-0.5 h-4 w-4 shrink-0" />
+          <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 shadow-sm">
+            <AlertIcon className="mt-0.5 h-4 w-4 shrink-0 text-rose-600" />
             <p>{optionsError}</p>
           </div>
         )}
 
         {options && options.sido.length > 0 && (
           <>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <RegionIndustryPicker
                 idPrefix="a"
-                title="지역 A"
+                title="비교 후보지 A (사파이어)"
                 sido={options.sido}
                 sigungu={options.sigungu}
                 dong={options.dong}
@@ -156,12 +149,12 @@ export default function ComparePage() {
                 onSubmit={runCompare}
                 loading={loading}
                 hideSubmit
-                accentBar="from-blue-500 via-indigo-500 to-sky-500"
-                accentIcon="from-blue-500 to-indigo-600"
+                accentBar="from-indigo-600 via-indigo-700 to-indigo-900"
+                accentIcon="from-indigo-600 to-indigo-800"
               />
               <RegionIndustryPicker
                 idPrefix="b"
-                title="지역 B"
+                title="비교 후보지 B (앰버 골드)"
                 sido={options.sido}
                 sigungu={options.sigungu}
                 dong={options.dong}
@@ -173,26 +166,37 @@ export default function ComparePage() {
                 onSubmit={runCompare}
                 loading={loading}
                 hideSubmit
-                accentBar="from-orange-500 via-amber-500 to-yellow-400"
-                accentIcon="from-orange-500 to-amber-600"
+                accentBar="from-amber-500 via-amber-600 to-amber-700"
+                accentIcon="from-amber-500 to-amber-600"
               />
             </div>
 
-            <button
-              type="button"
-              onClick={runCompare}
-              disabled={loading}
-              className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-orange-500 py-2.5 text-sm font-semibold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:from-slate-700 disabled:to-slate-700 disabled:shadow-none sm:w-auto sm:self-center sm:px-8"
-            >
-              <SearchIcon className="h-4 w-4" />
-              {loading ? "비교 중..." : "두 지역 비교하기"}
-            </button>
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={runCompare}
+                disabled={loading}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-8 py-4 text-sm font-extrabold text-white shadow-lg transition-all duration-300 hover:from-amber-600 hover:via-amber-700 hover:to-slate-900 hover:shadow-gold-glow disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? (
+                  <>
+                    <SpinnerIcon className="h-4 w-4 animate-spin text-amber-400" />
+                    <span>양측 상권 데이터 동시 대조 중...</span>
+                  </>
+                ) : (
+                  <>
+                    <SearchIcon className="h-4 w-4 text-amber-400" />
+                    <span>후보지 상권 정밀 비교 분석 실행</span>
+                  </>
+                )}
+              </button>
+            </div>
           </>
         )}
 
         {error && (
-          <div className="flex items-start gap-2.5 rounded-xl border border-rose-500/20 bg-rose-500/10 px-4 py-3.5 text-sm text-rose-300">
-            <AlertIcon className="mt-0.5 h-4 w-4 shrink-0" />
+          <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 shadow-sm">
+            <AlertIcon className="mt-0.5 h-4 w-4 shrink-0 text-rose-600" />
             <p>{error}</p>
           </div>
         )}
@@ -206,11 +210,11 @@ export default function ComparePage() {
           />
         )}
 
-        <footer className="pb-2 pt-1">
+        <footer className="pb-4 pt-2">
           <DataSourceNotice
             sourceName={COMMERCIAL_SOURCE_NAME}
             referenceLabel={options?.meta.dataReferenceMonth ?? "확인 중"}
-            message="실시간 정보가 아니며, 실제 운영 여부는 현장 확인이 필요합니다."
+            message="비교 데이터는 동일 기준월 공공 상권 정보를 바탕으로 산출되었으며 상대적 수치 지표입니다."
           />
         </footer>
       </main>

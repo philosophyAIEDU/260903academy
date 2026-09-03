@@ -5,12 +5,12 @@ interface IndustryStatsProps {
 }
 
 const PILL_COLORS = [
-  "border-indigo-500/30 bg-indigo-500/10 text-indigo-300",
-  "border-sky-500/30 bg-sky-500/10 text-sky-300",
-  "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
-  "border-amber-500/30 bg-amber-500/10 text-amber-300",
-  "border-rose-500/30 bg-rose-500/10 text-rose-300",
-  "border-violet-500/30 bg-violet-500/10 text-violet-300",
+  "border-amber-200 bg-amber-50 text-amber-900",
+  "border-indigo-200 bg-indigo-50 text-indigo-900",
+  "border-emerald-200 bg-emerald-50 text-emerald-900",
+  "border-sky-200 bg-sky-50 text-sky-900",
+  "border-purple-200 bg-purple-50 text-purple-900",
+  "border-rose-200 bg-rose-50 text-rose-900",
 ];
 
 export default function IndustryStats({ academies }: IndustryStatsProps) {
@@ -25,22 +25,24 @@ export default function IndustryStats({ academies }: IndustryStatsProps) {
   const top = sorted.slice(0, 6);
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-      <span className="text-sm font-semibold text-slate-100">
-        검색된 학원 {academies.length.toLocaleString()}개
-      </span>
-      <span className="text-slate-600">·</span>
+    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-panel">
+      <div className="flex items-center gap-2">
+        <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+        <span className="text-xs font-bold text-slate-900">
+          검색 학원 {academies.length.toLocaleString()}개소 분포:
+        </span>
+      </div>
       <div className="flex flex-wrap gap-1.5">
         {top.map(([type, count], i) => (
           <span
             key={type}
-            className={`rounded-full border px-2.5 py-1 text-xs font-medium ${PILL_COLORS[i % PILL_COLORS.length]}`}
+            className={`rounded-xl border px-3 py-1 text-xs font-bold shadow-xs ${PILL_COLORS[i % PILL_COLORS.length]}`}
           >
-            {type} {count}
+            {type} <span className="opacity-75 font-normal">({count})</span>
           </span>
         ))}
         {sorted.length > top.length && (
-          <span className="rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-400">
+          <span className="rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-500">
             외 {sorted.length - top.length}개 업종
           </span>
         )}

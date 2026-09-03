@@ -25,7 +25,6 @@ function exportStoresCsv(stores: Store[]) {
 }
 
 interface StoreMapPanelProps {
-  /** "분석하기"로 실제 제출된 조건. sigunguCode가 없으면 지도를 보여줄 수 없습니다. */
   query: CommercialAnalysisQuery | null;
 }
 
@@ -50,14 +49,11 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
 
   const sigunguCode = query?.sigunguCode;
 
-  // 지역/업종 조건이 새로 제출되면 이전 검색어는 비웁니다 (다른 분석 맥락에 남아있지 않도록).
   useEffect(() => {
     setNameInput("");
     setDebouncedName("");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sigunguCode, query?.dongCode, query?.largeCode, query?.midCode, query?.smallCode]);
 
-  // 입력 중 매 글자마다 요청하지 않도록 350ms 디바운스합니다.
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedName(nameInput.trim()), 350);
     return () => clearTimeout(timer);
@@ -95,82 +91,95 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
     return () => {
       cancelled = true;
     };
-    // query 객체 참조가 매번 바뀌므로 실제로 지도 조회에 영향을 주는 필드만 의존성으로 사용합니다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sigunguCode, query?.dongCode, query?.largeCode, query?.midCode, query?.smallCode, debouncedName]);
 
   if (!sigunguCode) {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center shadow-panel">
-        <MapPinIcon className="h-6 w-6 text-slate-600" />
-        <p className="text-sm font-medium text-slate-300">
-          시/군/구를 선택하면 지도에서 개별 업체를 볼 수 있어요
-        </p>
-        <p className="text-xs text-slate-500">
-          업체 데이터가 지역 단위로 나뉘어 있어, 시/도 전체는 지도로 보여드릴 수 없습니다
-        </p>
+      <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/80 p-10 text-center shadow-panel">
+        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 ring-1 ring-amber-200">
+          <MapPinIcon className="h-6 w-6" />
+        </span>
+        <div>
+          <p className="text-sm font-bold text-slate-800">
+            시/군/구를 선택하면 고정밀 상권 지도에서 개별 점포 위치를 확인할 수 있습니다
+          </p>
+          <p className="mt-1 text-xs text-slate-500">
+            방대한 빅데이터를 효율적으로 렌더링하기 위해 시/군/구 단위부터 지도가 활성화됩니다.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-panel">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 bg-gradient-to-r from-emerald-500/[0.07] via-slate-900 to-sky-500/[0.05] px-4 py-3">
-        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-200">
-          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-emerald-500 to-sky-600 text-white">
-            <MapPinIcon className="h-3.5 w-3.5" />
+    <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-panel">
+      {/* 상단 툴바 */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-gradient-to-r from-slate-50 via-white to-amber-50/30 px-5 py-4">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-slate-900 text-white shadow-sm">
+            <MapPinIcon className="h-4 w-4" />
           </span>
-          지도에서 업체 보기
-        </h3>
-        {data && !loading && data.stores.length > 0 && (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500">
-              {data.totalCount.toLocaleString()}개 중 {data.stores.length.toLocaleString()}개 표시
-            </span>
-            <button
-              type="button"
-              onClick={() => exportStoresCsv(data.stores)}
-              className="rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-[11px] font-medium text-slate-300 shadow-sm transition-colors hover:bg-slate-700"
-            >
-              CSV 다운로드
-            </button>
+          <div>
+            <h3 className="text-sm font-bold text-slate-900">상권 지리정보 및 점포 위치 매핑</h3>
+            <p className="text-[11px] text-slate-500">카카오맵 고정밀 공간 지리 시각화</p>
           </div>
-        )}
+        </div>
+
+        <div className="flex items-center gap-3">
+          {data && !loading && data.stores.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-slate-600">
+                {data.totalCount.toLocaleString()}개소 중 {data.stores.length.toLocaleString()}개소
+                표시
+              </span>
+              <button
+                type="button"
+                onClick={() => exportStoresCsv(data.stores)}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-300"
+              >
+                점포 목록 CSV 다운로드
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="border-b border-slate-800 px-4 py-2.5">
-        <div className="relative max-w-xs">
-          <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+      {/* 검색 필터 바 */}
+      <div className="border-b border-slate-100 bg-slate-50/50 px-5 py-3">
+        <div className="relative max-w-sm">
+          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
-            placeholder="업체명으로 찾기 (예: 스타벅스)"
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 py-1.5 pl-8 pr-3 text-xs text-slate-100 shadow-sm transition-colors placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+            placeholder="상호명 검색 (예: 스타벅스, 교촌, 메가커피)"
+            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3.5 text-xs font-medium text-slate-800 shadow-sm transition-colors placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
           />
         </div>
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 px-4 py-3 text-xs text-rose-400">
+        <div className="flex items-start gap-2 bg-rose-50 px-5 py-3 text-xs text-rose-700">
           <AlertIcon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <p>{error}</p>
         </div>
       )}
 
-      <div className="h-[420px] w-full">
+      {/* 지도 영역 */}
+      <div className="h-[460px] w-full bg-slate-100 relative">
         {loading ? (
-          <div className="flex h-full items-center justify-center gap-2 bg-slate-900 text-sm text-slate-500">
-            <SpinnerIcon className="h-4 w-4 animate-spin text-emerald-400" />
-            업체 위치를 불러오는 중...
+          <div className="flex h-full items-center justify-center gap-2 text-xs font-semibold text-slate-600">
+            <SpinnerIcon className="h-5 w-5 animate-spin text-amber-600" />
+            공간 지리 데이터를 로딩하는 중입니다...
           </div>
         ) : data && data.stores.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 bg-slate-900 text-center">
-            <SearchIcon className="h-5 w-5 text-slate-600" />
-            <p className="text-sm text-slate-500">
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-center p-6">
+            <SearchIcon className="h-6 w-6 text-slate-400" />
+            <p className="text-sm font-semibold text-slate-600">
               {debouncedName
-                ? `"${debouncedName}"과(와) 일치하는 업체가 없습니다`
-                : "조건에 맞는 업체가 없습니다"}
+                ? `"${debouncedName}"과(와) 일치하는 점포가 없습니다.`
+                : "선택된 조건에 부합하는 점포가 없습니다."}
             </p>
           </div>
         ) : (
@@ -179,10 +188,11 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
       </div>
 
       {data?.truncated && (
-        <p className="border-t border-slate-800 px-4 py-2 text-[11px] text-slate-500">
-          업체가 많아 대표로 {data.stores.length.toLocaleString()}개만 지도에 표시했습니다. 더
-          자세히 보려면 행정동·업종을 좁히거나 업체명으로 검색해보세요.
-        </p>
+        <div className="border-t border-slate-100 bg-slate-50/70 px-5 py-2.5 text-[11px] text-slate-500 flex items-center justify-between">
+          <span>
+            💡 등록 점포가 많아 상위 {data.stores.length.toLocaleString()}개소가 표시되었습니다. 행정동이나 소분류 업종을 세분화하면 정확한 점포를 모두 확인할 수 있습니다.
+          </span>
+        </div>
       )}
     </div>
   );
