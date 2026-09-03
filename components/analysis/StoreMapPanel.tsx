@@ -101,12 +101,12 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
 
   if (!sigunguCode) {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-panel">
-        <MapPinIcon className="h-6 w-6 text-slate-300" />
-        <p className="text-sm font-medium text-slate-500">
+      <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center shadow-panel">
+        <MapPinIcon className="h-6 w-6 text-slate-600" />
+        <p className="text-sm font-medium text-slate-300">
           시/군/구를 선택하면 지도에서 개별 업체를 볼 수 있어요
         </p>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-500">
           업체 데이터가 지역 단위로 나뉘어 있어, 시/도 전체는 지도로 보여드릴 수 없습니다
         </p>
       </div>
@@ -114,9 +114,9 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-panel">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 bg-gradient-to-r from-emerald-50/70 via-white to-sky-50/50 px-4 py-3">
-        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+    <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-panel">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 bg-gradient-to-r from-emerald-500/[0.07] via-slate-900 to-sky-500/[0.05] px-4 py-3">
+        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-200">
           <span className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-emerald-500 to-sky-600 text-white">
             <MapPinIcon className="h-3.5 w-3.5" />
           </span>
@@ -124,13 +124,13 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
         </h3>
         {data && !loading && data.stores.length > 0 && (
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-slate-500">
               {data.totalCount.toLocaleString()}개 중 {data.stores.length.toLocaleString()}개 표시
             </span>
             <button
               type="button"
               onClick={() => exportStoresCsv(data.stores)}
-              className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50"
+              className="rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-[11px] font-medium text-slate-300 shadow-sm transition-colors hover:bg-slate-700"
             >
               CSV 다운로드
             </button>
@@ -138,21 +138,21 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
         )}
       </div>
 
-      <div className="border-b border-slate-100 px-4 py-2.5">
+      <div className="border-b border-slate-800 px-4 py-2.5">
         <div className="relative max-w-xs">
-          <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+          <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
             placeholder="업체명으로 찾기 (예: 스타벅스)"
-            className="w-full rounded-lg border border-slate-300 bg-white py-1.5 pl-8 pr-3 text-xs text-slate-800 shadow-sm transition-colors placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+            className="w-full rounded-lg border border-slate-700 bg-slate-800 py-1.5 pl-8 pr-3 text-xs text-slate-100 shadow-sm transition-colors placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
           />
         </div>
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 px-4 py-3 text-xs text-rose-600">
+        <div className="flex items-start gap-2 px-4 py-3 text-xs text-rose-400">
           <AlertIcon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <p>{error}</p>
         </div>
@@ -160,14 +160,14 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
 
       <div className="h-[420px] w-full">
         {loading ? (
-          <div className="flex h-full items-center justify-center gap-2 text-sm text-slate-400">
+          <div className="flex h-full items-center justify-center gap-2 bg-slate-900 text-sm text-slate-500">
             <SpinnerIcon className="h-4 w-4 animate-spin text-emerald-400" />
             업체 위치를 불러오는 중...
           </div>
         ) : data && data.stores.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
-            <SearchIcon className="h-5 w-5 text-slate-300" />
-            <p className="text-sm text-slate-400">
+          <div className="flex h-full flex-col items-center justify-center gap-2 bg-slate-900 text-center">
+            <SearchIcon className="h-5 w-5 text-slate-600" />
+            <p className="text-sm text-slate-500">
               {debouncedName
                 ? `"${debouncedName}"과(와) 일치하는 업체가 없습니다`
                 : "조건에 맞는 업체가 없습니다"}
@@ -179,7 +179,7 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
       </div>
 
       {data?.truncated && (
-        <p className="border-t border-slate-100 px-4 py-2 text-[11px] text-slate-400">
+        <p className="border-t border-slate-800 px-4 py-2 text-[11px] text-slate-500">
           업체가 많아 대표로 {data.stores.length.toLocaleString()}개만 지도에 표시했습니다. 더
           자세히 보려면 행정동·업종을 좁히거나 업체명으로 검색해보세요.
         </p>

@@ -1,7 +1,14 @@
-# 경기도 학원 검색
+# 상권분석 · 경기도 학원 검색
 
-경기도교육청 학원 현황 오픈API(경기데이터드림, `Tbinstutm`)를 이용해 지역·업종·교습과정으로
-학원을 검색하고, 카카오맵에서 위치를 확인할 수 있는 Next.js 웹 서비스입니다.
+전국 단위 **상권분석**(소상공인시장진흥공단 상가업소정보 기반)을 첫 화면으로 하고, 그 안쪽에
+**경기도 학원 검색**(경기데이터드림 공공데이터, `Tbinstutm`)을 별도 페이지로 둔 Next.js 웹
+서비스입니다.
+
+- `/` — 상권분석 (첫 화면). 지역·업종별 점포 수 통계, 경쟁강도·업종 공백 진단, 지도에서 개별
+  업체 보기, AI 상권 분석가 챗봇.
+- `/academy` — 경기도 학원 검색. 첫 화면 헤더의 "경기 학원 검색 →" 링크로 원하는 사람만
+  들어갈 수 있습니다.
+- `/compare` — 상권분석의 지역 비교 페이지.
 
 ## 기술 스택
 
@@ -14,24 +21,35 @@
 
 ```
 app/
-├── layout.tsx, page.tsx, globals.css
-└── api/academies/route.ts   # 경기데이터드림 API 서버 프록시
+├── layout.tsx, globals.css
+├── page.tsx                  # "/" 상권분석 (첫 화면)
+├── compare/page.tsx          # "/compare" 지역 비교
+├── academy/page.tsx          # "/academy" 경기도 학원 검색 (안쪽 페이지)
+└── api/
+    ├── academies/route.ts                     # 경기데이터드림 API 서버 프록시
+    ├── commercial-analysis/route.ts           # 상권분석 결과
+    ├── commercial-analysis/options/route.ts   # 지역/업종 드롭다운 옵션
+    ├── commercial-analysis/stores/route.ts    # 지도용 업체 목록
+    └── ai-analysis/route.ts                   # AI 상권 분석가(Gemini) 프록시
 components/
-├── SearchForm.tsx            # 시군/읍면동/업종/학원명 검색 UI
-├── AcademyMap.tsx             # 카카오맵 + 마커 + 인포윈도우
-├── AcademyList.tsx            # 검색 결과 리스트
-├── IndustryStats.tsx          # 업종별 통계 요약 (선택 기능)
-├── FavoriteToggle.tsx         # 즐겨찾기 버튼 (선택 기능)
-└── DataSourceNotice.tsx       # 출처/기준일자 안내
+├── SearchForm.tsx, AcademyMap.tsx, AcademyList.tsx, IndustryStats.tsx,
+│   FavoriteToggle.tsx        # 학원 검색 UI
+├── DataSourceNotice.tsx      # 출처/기준일자 안내
+└── analysis/                 # 상권분석 UI (RegionIndustryPicker, AnalysisResult,
+                               #   SaturationCard, GapAnalysisPanel, CompareResult,
+                               #   StoreMapPanel, CommercialMap, AIAnalystChat 등)
 lib/
-├── gg-api.ts     # 원본 API 호출 + 페이지네이션(pIndex 증가) + 응답 파싱
-├── normalize.ts  # 원본 row → Academy 정규화
-└── constants.ts  # DATA_REFERENCE_DATE, 시군 목록 등
+├── gg-api.ts, normalize.ts, constants.ts   # 학원 검색 데이터 처리
+├── commercial.ts, commercial-stores.ts     # 상권분석 집계·업체 목록 조회
+├── gemini-prompt.ts, ai-constants.ts       # AI 상권 분석가 시스템 프롬프트·모델 목록
+└── csv-export.ts                           # CSV 다운로드
 types/
-├── academy.ts    # Academy, AcademyApiRow 등 타입 정의
+├── academy.ts, commercial.ts, ai-analysis.ts
 └── kakao.d.ts    # 카카오맵 SDK 최소 타입 선언
 hooks/
-└── useFavorites.ts  # 로컬스토리지 기반 즐겨찾기
+├── useFavorites.ts       # 로컬스토리지 기반 즐겨찾기
+├── useGeminiApiKey.ts    # 로컬스토리지 기반 Gemini API 키 저장
+└── useGeminiModel.ts     # 로컬스토리지 기반 Gemini 모델 선택 저장
 ```
 
 ## 실행 방법
@@ -90,7 +108,9 @@ npm run dev
 `netlify.toml`이 포함되어 있어, API 라우트(`/api/academies`)를 포함한 App Router 기능이
 서버리스 함수로 정상 배포됩니다.
 
-브라우저에서 http://localhost:3000 접속 후, 시군을 선택하고 검색해보세요.
+브라우저에서 http://localhost:3000 접속 시 첫 화면은 상권분석이며, 지역과 업종을 선택하고
+"분석하기"를 눌러보세요. 경기도 학원 검색은 헤더의 "경기 학원 검색 →" 링크(`/academy`)로
+들어갈 수 있습니다.
 
 ## ⚠️ API 응답 스키마 관련 안내
 
@@ -124,10 +144,11 @@ API 응답의 `dataReferenceDate` 값에 모두 반영됩니다.
 - 페이지당 최대 200건(`GG_API_PAGE_SIZE`, `lib/constants.ts`)씩 `pIndex`를 늘려가며 호출해
   전체 데이터를 모읍니다(`fetchAllAcademies`, `lib/gg-api.ts`).
 
-## 상권분석 (`/analysis`)
+## 상권분석 (`/`, 첫 화면)
 
 경기 학원 검색과는 별도로, **소상공인시장진흥공단 상가(상권)정보**(전국 업종별 점포 현황)를
 기반으로 지역·업종을 선택하면 점포 수·비중·하위 업종/행정동별 분포를 보여주는 기능입니다.
+경기 학원 검색(`/academy`)은 첫 화면 헤더의 링크로만 들어갈 수 있는 안쪽 페이지로 옮겼습니다.
 소상공인 컨설팅을 염두에 두고 아래 기능도 함께 제공합니다:
 
 - **경쟁강도 진단**: 선택한 업종이 선택한 지역에 상위 지역(행정동→시군구, 시군구→시도) 평균
@@ -135,7 +156,7 @@ API 응답의 `dataReferenceDate` 값에 모두 반영됩니다.
   (`analyzeSaturation`, `components/analysis/SaturationCard.tsx`).
 - **업종 공백 분석**: 같은 비교 기준 대비 이 지역에 상대적으로 적은 업종을 순위로 보여줘
   창업 기회 후보를 참고할 수 있습니다(`analyzeGaps`, `components/analysis/GapAnalysisPanel.tsx`).
-- **지역 비교 (`/analysis/compare`)**: 후보지 두 곳(지역+업종)을 나란히 놓고 점포 수·비중·
+- **지역 비교 (`/compare`)**: 후보지 두 곳(지역+업종)을 나란히 놓고 점포 수·비중·
   경쟁강도·업종 구성을 비교합니다.
 - **CSV 다운로드**: 분석 결과, 업체 목록, 지역 비교 결과를 각각 CSV로 내려받아 고객 자료로
   바로 쓸 수 있습니다(`lib/csv-export.ts`).
@@ -149,8 +170,11 @@ API 응답의 `dataReferenceDate` 값에 모두 반영됩니다.
   서버(`app/api/ai-analysis/route.ts`)를 한 번 거쳐 Gemini에 전달될 뿐입니다(CORS 문제 없이
   안정적으로 호출하기 위함). 대화 상태는 Gemini API 특성상 매 턴 전체 이력을 다시 보내는
   방식으로 유지됩니다(`hooks/useGeminiApiKey.ts`, `components/analysis/AIAnalystChat.tsx`,
-  `lib/gemini-prompt.ts`). 기본 모델은 `lib/ai-constants.ts`의 `GEMINI_MODEL`
-  (`gemini-3.5-flash-lite`)이며, 이 상수 하나만 바꾸면 다른 모델로 전환됩니다.
+  `lib/gemini-prompt.ts`). **모델은 채팅창 상단 드롭다운에서 직접 고를 수 있으며**
+  (`gemini-3.5-flash-lite` / `gemini-3.7-flash` / `gemini-3.8-flash`), 선택은
+  `hooks/useGeminiModel.ts`가 브라우저에 기억해둡니다. 서버는 클라이언트가 보낸 모델 ID가
+  `lib/ai-constants.ts`의 `GEMINI_MODELS` 허용 목록에 없으면 기본 모델로 안전하게 대체합니다.
+  모델을 추가/교체하려면 `GEMINI_MODELS` 배열만 수정하면 됩니다.
 
 ### 왜 오픈API가 아니라 정적 파일 기반인가
 
@@ -171,7 +195,7 @@ data/raw/*.csv              원본 CSV (지역별로 여러 개, 이 저장소�
   조합별 점포 수**로 집계합니다. 원본 CSV의 업종코드(대분류 2자 ⊂ 중분류 4자 ⊂ 소분류 6자)와
   지역코드(시도 2자 ⊂ 시군구 5자 ⊂ 행정동 8자)가 모두 **접두사 계층 구조**라, 소분류코드와
   행정동코드만 저장해도 상위 분류를 문자열 접두사로 복원할 수 있어 매우 작게 압축됩니다
-  (전남·광주 지역 기준 17만 5천여 행 → 집계 후 3만 2천여 그룹, 약 800KB).
+  (전국 기준 약 277만 행 → 집계 후 약 40만 그룹, `commercial-stats.json` 약 9.6MB).
   ⚠️ **집계는 "몇 개인지"만 압축하는 것이지 데이터가 줄어드는 게 아닙니다** — 각 그룹의 점포
   수를 모두 더하면 원본 행 수와 정확히 일치합니다(스크립트 실행 시 콘솔에 두 숫자가 모두
   출력되어 바로 검증할 수 있습니다).
@@ -191,19 +215,21 @@ data/raw/*.csv              원본 CSV (지역별로 여러 개, 이 저장소�
   공유 SDK 로더 사용)가 결과를 마커로 표시합니다. 업체가 많으면 지도 성능을 위해
   대표 300개만 균등 샘플링해서 보여주고, 실제 총 개수는 별도로 표시합니다.
 
-### 지역이 아직 일부만 있는 이유
+### 지역 데이터 범위
 
-전국 단위 원본 CSV를 한 번에 전달받기 어려워(용량 문제), **지역별로 하나씩 추가**하는 구조로
-설계했습니다. 현재는 `data/raw/`에 있는 파일만큼만 지원되며(현재: 전남·광주),
-`/analysis` 페이지의 지역 드롭다운은 실제 데이터가 있는 지역만 자동으로 보여줍니다.
+전국 16개 시/도(경기·서울은 GitHub 100MB 파일 제한 때문에 여러 CSV로 분할) 원본 CSV가
+모두 `data/raw/`에 있으며, 집계 결과는 이를 전부 반영합니다(총 약 277만 개 점포, 256개
+시군구, 3,558개 행정동). `/` 페이지의 지역 드롭다운은 실제 데이터가 있는 지역만 자동으로
+보여주므로, 지역이 추가/변경되어도 코드 수정 없이 그대로 반영됩니다.
 
-**지역을 추가하려면:**
-1. 같은 형식(소상공인시장진흥공단 상가업소정보 CSV)의 다른 지역 파일을 `data/raw/`에 추가
+**데이터를 최신화하려면:**
+1. 같은 형식(소상공인시장진흥공단 상가업소정보 CSV)의 새 원본 파일로 `data/raw/`의 해당
+   지역 파일을 교체(또는 추가)
 2. `node scripts/build-commercial-stats.mjs` 재실행 → `data/processed/commercial-stats.json`과
-   `public/commercial-stores/*.json`이 전체(기존 지역 포함) 다시 생성됩니다
-3. 커밋 & 배포 — 코드 변경 없이 드롭다운에 새 지역이 자동으로 나타납니다
+   `public/commercial-stores/*.json`이 전체 지역을 다시 생성합니다
+3. 커밋 & 배포 — 코드 변경 없이 드롭다운/통계에 반영됩니다
 
-⚠️ **저장소 용량 참고**: 지역 1개(전남·광주)당 원본 CSV 약 99MB + 업체 목록 파티션 약
-24MB가 저장소에 쌓입니다. 전국(17개 시/도)까지 다 채우면 수 GB 규모가 될 수 있어, 나중에는
-원본 CSV(`data/raw/`)를 git 히스토리에서 정리하고 집계·파티션 결과만 남기는 것을 고려해볼
-수 있습니다(현재는 재처리에 대비해 원본을 그대로 두었습니다).
+⚠️ **저장소 용량 참고**: 원본 CSV(`data/raw/`) 약 1.5GB + 업체 목록 파티션
+(`public/commercial-stores/`) 약 344MB가 저장소에 포함되어 있습니다. 저장소/배포 용량이
+부담스러워지면 원본 CSV를 git 히스토리에서 정리하고 집계·파티션 결과만 남기는 것을
+고려해볼 수 있습니다(현재는 재처리에 대비해 원본을 그대로 두었습니다).

@@ -8,8 +8,8 @@ const config: Config = {
   theme: {
     extend: {
       boxShadow: {
-        panel: "0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 28px -14px rgba(15, 23, 42, 0.16)",
-        glow: "0 8px 24px -8px rgba(79, 70, 229, 0.45)",
+        panel: "0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 12px 32px -16px rgba(0, 0, 0, 0.65)",
+        glow: "0 8px 24px -8px rgba(99, 102, 241, 0.5)",
       },
       keyframes: {
         "fade-up": {

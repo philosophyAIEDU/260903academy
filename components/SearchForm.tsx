@@ -18,7 +18,7 @@ interface SearchFormProps {
 }
 
 const fieldClass =
-  "w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-800 shadow-sm transition-colors placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100";
+  "w-full rounded-lg border border-slate-700 bg-slate-800 py-2.5 pl-10 pr-3 text-sm text-slate-100 shadow-sm transition-colors placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/25";
 
 function FieldIcon({ children, color }: { children: React.ReactNode; color: string }) {
   return (
@@ -55,21 +55,21 @@ export default function SearchForm({ onSearch, loading }: SearchFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-panel"
+      className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-panel"
     >
-      <div className="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-sky-400" />
+      <div className="h-1 w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-sky-400" />
 
       <div className="p-5 sm:p-6">
         <div className="mb-4 flex items-center gap-2">
           <span className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-indigo-500 to-violet-600">
             <SearchIcon className="h-3.5 w-3.5 text-white" />
           </span>
-          <h2 className="text-sm font-semibold text-slate-800">검색 조건</h2>
+          <h2 className="text-sm font-semibold text-slate-100">검색 조건</h2>
         </div>
 
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-5">
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="sigunNm" className="text-xs font-medium text-slate-600">
+            <label htmlFor="sigunNm" className="text-xs font-medium text-slate-400">
               시군 <span className="text-indigo-500">*</span>
             </label>
             <div className="relative">
@@ -94,7 +94,7 @@ export default function SearchForm({ onSearch, loading }: SearchFormProps) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="emdNm" className="text-xs font-medium text-slate-600">
+            <label htmlFor="emdNm" className="text-xs font-medium text-slate-400">
               읍면동
             </label>
             <div className="relative">
@@ -113,7 +113,7 @@ export default function SearchForm({ onSearch, loading }: SearchFormProps) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="indutypeDivNm" className="text-xs font-medium text-slate-600">
+            <label htmlFor="indutypeDivNm" className="text-xs font-medium text-slate-400">
               업종구분
             </label>
             <div className="relative">
@@ -138,7 +138,7 @@ export default function SearchForm({ onSearch, loading }: SearchFormProps) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="faclyNm" className="text-xs font-medium text-slate-600">
+            <label htmlFor="faclyNm" className="text-xs font-medium text-slate-400">
               학원명
             </label>
             <div className="relative">
@@ -160,7 +160,7 @@ export default function SearchForm({ onSearch, loading }: SearchFormProps) {
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 py-2.5 pl-3 pr-3.5 text-sm font-semibold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none"
+              className="flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 py-2.5 pl-3 pr-3.5 text-sm font-semibold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:from-slate-700 disabled:to-slate-700 disabled:text-slate-400 disabled:shadow-none"
             >
               {loading ? (
                 <>
@@ -178,7 +178,7 @@ export default function SearchForm({ onSearch, loading }: SearchFormProps) {
         </div>
 
         {validationError && (
-          <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-rose-600">
+          <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-rose-400">
             <AlertIcon className="h-3.5 w-3.5" />
             {validationError}
           </p>

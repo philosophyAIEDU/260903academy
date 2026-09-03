@@ -94,28 +94,28 @@ export default function ComparePage() {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-30 overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-orange-500 shadow-lg shadow-blue-900/10">
+      <header className="sticky top-0 z-30 overflow-hidden bg-gradient-to-r from-blue-700 via-indigo-700 to-orange-700 shadow-lg shadow-black/40">
         <div
-          className="pointer-events-none absolute -left-14 -top-16 h-52 w-52 animate-blob rounded-full bg-white/10 blur-3xl"
+          className="pointer-events-none absolute -left-14 -top-16 h-52 w-52 animate-blob rounded-full bg-white/5 blur-3xl"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute -right-10 -top-24 h-64 w-64 animate-blob rounded-full bg-orange-200/25 blur-3xl [animation-delay:2s]"
+          className="pointer-events-none absolute -right-10 -top-24 h-64 w-64 animate-blob rounded-full bg-orange-400/10 blur-3xl [animation-delay:2s]"
           aria-hidden="true"
         />
         <div className="relative mx-auto flex max-w-7xl items-center gap-3 px-4 py-4 sm:px-6">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-base font-bold text-white shadow-inner ring-1 ring-white/25 backdrop-blur">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-base font-bold text-white shadow-inner ring-1 ring-white/15 backdrop-blur">
             비교
           </div>
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-lg font-bold leading-tight text-white">지역 비교</h1>
-            <p className="truncate text-xs leading-tight text-blue-50">
+            <p className="truncate text-xs leading-tight text-blue-100/80">
               후보지 두 곳을 나란히 비교해보세요
             </p>
           </div>
           <Link
-            href="/analysis"
-            className="hidden shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-white/25 sm:flex"
+            href="/"
+            className="hidden shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white ring-1 ring-white/15 backdrop-blur transition-colors hover:bg-white/20 sm:flex"
           >
             상권분석으로
           </Link>
@@ -125,15 +125,15 @@ export default function ComparePage() {
       <main className="mx-auto flex max-w-7xl flex-col gap-4 p-4 sm:gap-5 sm:p-6">
         <div className="flex items-center justify-between gap-2 sm:hidden">
           <Link
-            href="/analysis"
-            className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm"
+            href="/"
+            className="flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-300 shadow-sm"
           >
             ← 상권분석으로
           </Link>
         </div>
 
         {optionsError && (
-          <div className="flex items-start gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3.5 text-sm text-rose-700">
+          <div className="flex items-start gap-2.5 rounded-xl border border-rose-500/20 bg-rose-500/10 px-4 py-3.5 text-sm text-rose-300">
             <AlertIcon className="mt-0.5 h-4 w-4 shrink-0" />
             <p>{optionsError}</p>
           </div>
@@ -182,7 +182,7 @@ export default function ComparePage() {
               type="button"
               onClick={runCompare}
               disabled={loading}
-              className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-orange-500 py-2.5 text-sm font-semibold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none sm:w-auto sm:self-center sm:px-8"
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-orange-500 py-2.5 text-sm font-semibold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:from-slate-700 disabled:to-slate-700 disabled:shadow-none sm:w-auto sm:self-center sm:px-8"
             >
               <SearchIcon className="h-4 w-4" />
               {loading ? "비교 중..." : "두 지역 비교하기"}
@@ -191,7 +191,7 @@ export default function ComparePage() {
         )}
 
         {error && (
-          <div className="flex items-start gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3.5 text-sm text-rose-700">
+          <div className="flex items-start gap-2.5 rounded-xl border border-rose-500/20 bg-rose-500/10 px-4 py-3.5 text-sm text-rose-300">
             <AlertIcon className="mt-0.5 h-4 w-4 shrink-0" />
             <p>{error}</p>
           </div>
@@ -210,7 +210,7 @@ export default function ComparePage() {
           <DataSourceNotice
             sourceName={COMMERCIAL_SOURCE_NAME}
             referenceLabel={options?.meta.dataReferenceMonth ?? "확인 중"}
-            message="실시간 정보가 아니며, 아직 일부 지역 데이터만 반영되어 있습니다."
+            message="실시간 정보가 아니며, 실제 운영 여부는 현장 확인이 필요합니다."
           />
         </footer>
       </main>

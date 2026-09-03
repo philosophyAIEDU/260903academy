@@ -5,12 +5,12 @@ interface IndustryStatsProps {
 }
 
 const PILL_COLORS = [
-  "border-indigo-100 bg-indigo-50 text-indigo-700",
-  "border-sky-100 bg-sky-50 text-sky-700",
-  "border-emerald-100 bg-emerald-50 text-emerald-700",
-  "border-amber-100 bg-amber-50 text-amber-700",
-  "border-rose-100 bg-rose-50 text-rose-700",
-  "border-violet-100 bg-violet-50 text-violet-700",
+  "border-indigo-500/30 bg-indigo-500/10 text-indigo-300",
+  "border-sky-500/30 bg-sky-500/10 text-sky-300",
+  "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
+  "border-amber-500/30 bg-amber-500/10 text-amber-300",
+  "border-rose-500/30 bg-rose-500/10 text-rose-300",
+  "border-violet-500/30 bg-violet-500/10 text-violet-300",
 ];
 
 export default function IndustryStats({ academies }: IndustryStatsProps) {
@@ -25,11 +25,11 @@ export default function IndustryStats({ academies }: IndustryStatsProps) {
   const top = sorted.slice(0, 6);
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-      <span className="text-sm font-semibold text-slate-800">
+    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
+      <span className="text-sm font-semibold text-slate-100">
         검색된 학원 {academies.length.toLocaleString()}개
       </span>
-      <span className="text-slate-300">·</span>
+      <span className="text-slate-600">·</span>
       <div className="flex flex-wrap gap-1.5">
         {top.map(([type, count], i) => (
           <span
@@ -40,7 +40,7 @@ export default function IndustryStats({ academies }: IndustryStatsProps) {
           </span>
         ))}
         {sorted.length > top.length && (
-          <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-500">
+          <span className="rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-400">
             외 {sorted.length - top.length}개 업종
           </span>
         )}

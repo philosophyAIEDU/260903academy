@@ -12,6 +12,8 @@ export interface AiAnalysisRequestBody {
   result: CommercialAnalysisResponse;
   /** 지금까지의 대화(가장 최근 사용자 메시지 포함) */
   messages: ChatMessage[];
+  /** 사용자가 선택한 Gemini 모델 ID. 비어있거나 허용 목록에 없으면 서버가 기본 모델로 대체합니다. */
+  model?: string;
 }
 
 export interface AiAnalysisResponseBody {

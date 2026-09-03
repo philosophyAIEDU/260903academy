@@ -19,7 +19,7 @@ export default function FavoriteToggle({ active, onToggle, label }: FavoriteTogg
       className={`shrink-0 rounded-full p-1 text-lg leading-none transition-all ${
         active
           ? "text-amber-500 drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]"
-          : "text-slate-300 hover:text-amber-400"
+          : "text-slate-600 hover:text-amber-400"
       }`}
     >
       {active ? "★" : "☆"}

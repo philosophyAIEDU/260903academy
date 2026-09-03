@@ -122,9 +122,9 @@ export default function AcademyMap({ academies, selectedId, onMarkerSelect }: Ac
 
   if (sdkError) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-2 bg-slate-50 p-6 text-center">
-        <AlertIcon className="h-6 w-6 text-rose-500" />
-        <p className="text-sm font-medium text-rose-600">{sdkError}</p>
+      <div className="flex h-full flex-col items-center justify-center gap-2 bg-slate-900 p-6 text-center">
+        <AlertIcon className="h-6 w-6 text-rose-400" />
+        <p className="text-sm font-medium text-rose-400">{sdkError}</p>
       </div>
     );
   }
@@ -132,7 +132,7 @@ export default function AcademyMap({ academies, selectedId, onMarkerSelect }: Ac
   return (
     <div className="relative h-full w-full">
       {!sdkReady && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-white text-sm text-slate-400">
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-slate-900 text-sm text-slate-500">
           <SpinnerIcon className="h-5 w-5 animate-spin text-indigo-400" />
           지도를 불러오는 중...
         </div>

@@ -24,7 +24,7 @@ interface RegionIndustryPickerProps {
 }
 
 const selectClass =
-  "w-full appearance-none rounded-lg border border-slate-300 bg-white py-2.5 pl-9 pr-8 text-sm text-slate-800 shadow-sm transition-colors focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400";
+  "w-full appearance-none rounded-lg border border-slate-700 bg-slate-800 py-2.5 pl-9 pr-8 text-sm text-slate-100 shadow-sm transition-colors focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/25 disabled:cursor-not-allowed disabled:bg-slate-900 disabled:text-slate-600";
 
 function FieldIcon({ children, color }: { children: React.ReactNode; color: string }) {
   return (
@@ -57,7 +57,7 @@ function Select({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-xs font-medium text-slate-600">
+      <label htmlFor={id} className="text-xs font-medium text-slate-400">
         {label}
       </label>
       <div className="relative">
@@ -120,15 +120,15 @@ export default function RegionIndustryPicker({
         e.preventDefault();
         onSubmit();
       }}
-      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-panel"
+      className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-panel"
     >
-      <div className={`h-1.5 w-full bg-gradient-to-r ${accentBar}`} />
+      <div className={`h-1 w-full bg-gradient-to-r ${accentBar}`} />
       <div className="p-5 sm:p-6">
         <div className="mb-4 flex items-center gap-2">
           <span className={`flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br ${accentIcon}`}>
             <SearchIcon className="h-3.5 w-3.5 text-white" />
           </span>
-          <h2 className="text-sm font-semibold text-slate-800">{title}</h2>
+          <h2 className="text-sm font-semibold text-slate-100">{title}</h2>
         </div>
 
         <p className="mb-3 text-xs font-medium text-slate-500">지역</p>
@@ -205,7 +205,7 @@ export default function RegionIndustryPicker({
           <button
             type="submit"
             disabled={loading}
-            className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-sky-600 py-2.5 text-sm font-semibold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none sm:w-auto sm:px-6"
+            className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-sky-600 py-2.5 text-sm font-semibold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:from-slate-700 disabled:to-slate-700 disabled:text-slate-400 disabled:shadow-none sm:w-auto sm:px-6"
           >
             {loading ? (
               <>

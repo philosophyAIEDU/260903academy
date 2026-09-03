@@ -7,12 +7,13 @@ body {
   height: 100%;
 }
 
+/* 다크 프로페셔널 테마 — 어두운 슬레이트 배경 위에 은은한 브랜드 톤 글로우 */
 body {
-  @apply text-slate-900 antialiased;
-  background-color: #f7f8fc;
-  background-image: radial-gradient(1100px circle at 12% -10%, rgba(99, 102, 241, 0.12), transparent 45%),
+  @apply text-slate-100 antialiased;
+  background-color: #05070d;
+  background-image: radial-gradient(1100px circle at 12% -10%, rgba(99, 102, 241, 0.16), transparent 45%),
     radial-gradient(900px circle at 100% 0%, rgba(56, 189, 248, 0.1), transparent 42%),
-    radial-gradient(900px circle at 40% 110%, rgba(168, 85, 247, 0.08), transparent 45%);
+    radial-gradient(900px circle at 40% 110%, rgba(139, 92, 246, 0.08), transparent 45%);
   background-attachment: fixed;
 }
 
@@ -24,7 +25,7 @@ body {
   background: transparent;
 }
 .thin-scrollbar::-webkit-scrollbar-thumb {
-  background-color: theme("colors.slate.300");
+  background-color: theme("colors.slate.700");
   border-radius: 9999px;
 }
 
@@ -36,7 +37,7 @@ body {
 .skeleton {
   position: relative;
   overflow: hidden;
-  background-color: theme("colors.slate.200");
+  background-color: theme("colors.slate.800");
 }
 .skeleton::after {
   content: "";
@@ -46,7 +47,7 @@ body {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0.08),
     transparent
   );
   animation: shimmer 1.6s infinite;

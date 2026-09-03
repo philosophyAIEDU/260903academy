@@ -96,23 +96,23 @@ function BreakdownBars({
   const max = top.length > 0 ? top[0]!.count : 0;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-panel sm:p-6">
-      <h3 className="mb-4 text-sm font-semibold text-slate-800">{title}</h3>
+    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-panel sm:p-6">
+      <h3 className="mb-4 text-sm font-semibold text-slate-100">{title}</h3>
       {top.length === 0 ? (
-        <p className="py-4 text-center text-xs text-slate-400">{emptyText}</p>
+        <p className="py-4 text-center text-xs text-slate-500">{emptyText}</p>
       ) : (
         <ul className="flex flex-col gap-3">
           {top.map((item, i) => (
             <li key={item.code}>
               <div className="mb-1 flex items-center justify-between gap-2 text-xs">
-                <span className="truncate font-medium text-slate-700">
+                <span className="truncate font-medium text-slate-300">
                   {i + 1}. {item.name}
                 </span>
-                <span className="shrink-0 text-slate-400">
+                <span className="shrink-0 text-slate-500">
                   {item.count.toLocaleString()}개 · {item.sharePct}%
                 </span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
                 <div
                   className={`h-full rounded-full bg-gradient-to-r ${colorFrom} ${colorTo}`}
                   style={{ width: max > 0 ? `${(item.count / max) * 100}%` : "0%" }}
@@ -134,14 +134,14 @@ export default function AnalysisResult({ result }: AnalysisResultProps) {
         <button
           type="button"
           onClick={() => exportResultCsv(result)}
-          className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50"
+          className="shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 shadow-sm transition-colors hover:bg-slate-700"
         >
           CSV 다운로드
         </button>
       </div>
 
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-3.5 text-white shadow-lg shadow-emerald-500/25 sm:p-4">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-800 p-3.5 text-white shadow-lg shadow-black/40 ring-1 ring-white/10 sm:p-4">
           <div className="pointer-events-none absolute -right-4 -top-6 h-16 w-16 rounded-full bg-white/10" />
           <span className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-white/20">
             <BuildingIcon className="h-4 w-4" />
@@ -155,7 +155,7 @@ export default function AnalysisResult({ result }: AnalysisResultProps) {
           </p>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 p-3.5 text-white shadow-lg shadow-sky-500/25 sm:p-4">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-600 to-blue-800 p-3.5 text-white shadow-lg shadow-black/40 ring-1 ring-white/10 sm:p-4">
           <div className="pointer-events-none absolute -right-4 -top-6 h-16 w-16 rounded-full bg-white/10" />
           <span className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-white/20">
             <MapPinIcon className="h-4 w-4" />
@@ -169,7 +169,7 @@ export default function AnalysisResult({ result }: AnalysisResultProps) {
           </p>
         </div>
 
-        <div className="relative col-span-2 overflow-hidden rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-600 p-3.5 text-white shadow-lg shadow-violet-500/25 sm:col-span-1 sm:p-4">
+        <div className="relative col-span-2 overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-800 p-3.5 text-white shadow-lg shadow-black/40 ring-1 ring-white/10 sm:col-span-1 sm:p-4">
           <div className="pointer-events-none absolute -right-4 -top-6 h-16 w-16 rounded-full bg-white/10" />
           <span className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-white/20">
             <ListIcon className="h-4 w-4" />

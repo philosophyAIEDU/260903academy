@@ -17,24 +17,21 @@ export default function StatsBar({ academies, favoritesCount }: StatsBarProps) {
       value: academies.length.toLocaleString(),
       suffix: "개",
       icon: <BuildingIcon className="h-4 w-4" />,
-      gradient: "from-indigo-500 to-indigo-600",
-      glow: "shadow-indigo-500/25",
+      gradient: "from-indigo-600 to-indigo-800",
     },
     {
       label: "업종 수",
       value: industryCount.toLocaleString(),
       suffix: "종",
       icon: <BookIcon className="h-4 w-4" />,
-      gradient: "from-violet-500 to-violet-600",
-      glow: "shadow-violet-500/25",
+      gradient: "from-violet-600 to-violet-800",
     },
     {
       label: "즐겨찾기",
       value: favoritesCount.toLocaleString(),
       suffix: "개",
       icon: <StarIcon className="h-4 w-4" />,
-      gradient: "from-sky-500 to-sky-600",
-      glow: "shadow-sky-500/25",
+      gradient: "from-sky-600 to-sky-800",
     },
   ];
 
@@ -43,7 +40,7 @@ export default function StatsBar({ academies, favoritesCount }: StatsBarProps) {
       {tiles.map((tile) => (
         <div
           key={tile.label}
-          className={`relative overflow-hidden rounded-2xl bg-gradient-to-br p-3.5 text-white shadow-lg sm:p-4 ${tile.gradient} ${tile.glow}`}
+          className={`relative overflow-hidden rounded-2xl bg-gradient-to-br p-3.5 text-white shadow-lg shadow-black/40 ring-1 ring-white/10 sm:p-4 ${tile.gradient}`}
         >
           <div className="pointer-events-none absolute -right-4 -top-6 h-16 w-16 rounded-full bg-white/10" />
           <div className="pointer-events-none absolute -bottom-6 -left-2 h-14 w-14 rounded-full bg-white/10" />

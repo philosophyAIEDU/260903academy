@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GEMINI_API_BASE, GEMINI_MODEL, MAX_CHAT_TURNS } from "@/lib/ai-constants";
+import { DEFAULT_GEMINI_MODEL, GEMINI_API_BASE, GEMINI_MODEL_IDS, MAX_CHAT_TURNS } from "@/lib/ai-constants";
 import { buildSystemInstruction } from "@/lib/gemini-prompt";
 import type { AiAnalysisRequestBody } from "@/types/ai-analysis";
 
@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/ai-analysis
- * body: { apiKey, result, messages }
+ * body: { apiKey, result, messages, model? }
  *
  * "AI 상권 분석가" 채팅의 프록시입니다. apiKey는 사용자가 브라우저에 직접 저장해둔
  * 자기 자신의 Gemini API 키이며, 이 요청을 Gemini에 그대로 전달하는 용도로만 쓰고
@@ -36,6 +36,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "대화 내용이 비어 있습니다." }, { status: 400 });
   }
 
+  // 클라이언트가 고른 모델이 허용 목록에 없으면(변조/오타 등) 기본 모델로 안전하게 대체합니다.
+  const model = GEMINI_MODEL_IDS.includes(body.model ?? "") ? body.model! : DEFAULT_GEMINI_MODEL;
+
   const systemInstruction = buildSystemInstruction(body.result);
   // 대화가 너무 길어지는 것을 막기 위해 최근 N턴만 전송합니다.
   const recentMessages = body.messages.slice(-MAX_CHAT_TURNS);
@@ -54,7 +57,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const res = await fetch(
-      `${GEMINI_API_BASE}/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`,
+      `${GEMINI_API_BASE}/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
