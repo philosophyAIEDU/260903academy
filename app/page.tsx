@@ -6,6 +6,7 @@ import AcademyMap from "@/components/AcademyMap";
 import AcademyList from "@/components/AcademyList";
 import DataSourceNotice from "@/components/DataSourceNotice";
 import IndustryStats from "@/components/IndustryStats";
+import StatsBar from "@/components/StatsBar";
 import { AlertIcon, ListIcon, MapIcon } from "@/components/icons";
 import { DATA_REFERENCE_DATE } from "@/lib/constants";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -64,26 +65,33 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-indigo-700 text-sm font-bold text-white shadow-sm">
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-30 overflow-hidden bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 shadow-lg shadow-indigo-900/10">
+        <div
+          className="pointer-events-none absolute -left-14 -top-16 h-52 w-52 animate-blob rounded-full bg-white/10 blur-3xl"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute -right-10 -top-24 h-64 w-64 animate-blob rounded-full bg-sky-300/25 blur-3xl [animation-delay:2s]"
+          aria-hidden="true"
+        />
+        <div className="relative mx-auto flex max-w-7xl items-center gap-3 px-4 py-4 sm:px-6">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-base font-bold text-white shadow-inner ring-1 ring-white/25 backdrop-blur">
             경
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-base font-bold leading-tight text-slate-900">
+            <h1 className="truncate text-lg font-bold leading-tight text-white">
               경기도 학원 검색
             </h1>
-            <p className="truncate text-[11px] leading-tight text-slate-500">
-              경기데이터드림 공공데이터 기반 학원 위치 검색
+            <p className="truncate text-xs leading-tight text-indigo-100">
+              경기데이터드림 공공데이터 기반 · 실시간 지도 검색
             </p>
           </div>
-          <span className="hidden shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-500 sm:flex">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          <span className="hidden shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white ring-1 ring-white/25 backdrop-blur sm:flex">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
             데이터 기준 {DATA_REFERENCE_DATE}
           </span>
         </div>
-        <div className="h-0.5 w-full bg-gradient-to-r from-indigo-600 via-indigo-400 to-sky-400" />
       </header>
 
       <main className="mx-auto flex max-w-7xl flex-col gap-4 p-4 sm:gap-5 sm:p-6">
@@ -97,19 +105,22 @@ export default function HomePage() {
         )}
 
         {!error && hasSearched && !loading && (
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <IndustryStats academies={academies} />
-            {favoriteIds.size > 0 && (
-              <label className="flex shrink-0 items-center gap-1.5 self-start rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm sm:self-auto">
-                <input
-                  type="checkbox"
-                  checked={showFavoritesOnly}
-                  onChange={(e) => setShowFavoritesOnly(e.target.checked)}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                즐겨찾기만 보기
-              </label>
-            )}
+          <div className="flex animate-fade-up flex-col gap-3">
+            <StatsBar academies={academies} favoritesCount={favoriteIds.size} />
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <IndustryStats academies={academies} />
+              {favoriteIds.size > 0 && (
+                <label className="flex shrink-0 items-center gap-1.5 self-start rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm sm:self-auto">
+                  <input
+                    type="checkbox"
+                    checked={showFavoritesOnly}
+                    onChange={(e) => setShowFavoritesOnly(e.target.checked)}
+                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  즐겨찾기만 보기
+                </label>
+              )}
+            </div>
           </div>
         )}
 
@@ -119,7 +130,9 @@ export default function HomePage() {
             type="button"
             onClick={() => setMobilePanel("map")}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-sm font-medium transition-colors ${
-              mobilePanel === "map" ? "bg-white text-indigo-700 shadow-sm" : "text-slate-500"
+              mobilePanel === "map"
+                ? "bg-white text-indigo-700 shadow-sm"
+                : "text-slate-500"
             }`}
           >
             <MapIcon className="h-4 w-4" />
@@ -129,7 +142,9 @@ export default function HomePage() {
             type="button"
             onClick={() => setMobilePanel("list")}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-sm font-medium transition-colors ${
-              mobilePanel === "list" ? "bg-white text-indigo-700 shadow-sm" : "text-slate-500"
+              mobilePanel === "list"
+                ? "bg-white text-indigo-700 shadow-sm"
+                : "text-slate-500"
             }`}
           >
             <ListIcon className="h-4 w-4" />
@@ -148,9 +163,11 @@ export default function HomePage() {
               mobilePanel === "map" ? "flex" : "hidden"
             }`}
           >
-            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-indigo-50/70 via-white to-violet-50/50 px-4 py-3">
               <h2 className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
-                <MapIcon className="h-4 w-4 text-indigo-600" />
+                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-indigo-500 to-violet-600 text-white">
+                  <MapIcon className="h-3.5 w-3.5" />
+                </span>
                 지도
               </h2>
               {hasSearched && !loading && (
@@ -177,9 +194,11 @@ export default function HomePage() {
               mobilePanel === "list" ? "flex" : "hidden"
             }`}
           >
-            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-indigo-50/70 via-white to-violet-50/50 px-4 py-3">
               <h2 className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
-                <ListIcon className="h-4 w-4 text-indigo-600" />
+                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-indigo-500 to-violet-600 text-white">
+                  <ListIcon className="h-3.5 w-3.5" />
+                </span>
                 검색 결과
               </h2>
               {hasSearched && !loading && (
@@ -192,9 +211,10 @@ export default function HomePage() {
               {loading ? (
                 <ListSkeleton />
               ) : !hasSearched ? (
-                <div className="flex h-full items-center justify-center p-6 text-center text-sm text-slate-400">
-                  시군을 선택하고 검색하면 결과가 여기에 표시됩니다.
-                </div>
+                <EmptyState
+                  title="검색 결과가 여기에 표시됩니다"
+                  subtitle="시군을 선택하고 검색해보세요"
+                />
               ) : (
                 <AcademyList
                   academies={visibleAcademies}
@@ -212,6 +232,20 @@ export default function HomePage() {
           <DataSourceNotice />
         </footer>
       </main>
+    </div>
+  );
+}
+
+function EmptyState({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50 text-indigo-400 ring-1 ring-indigo-100">
+        <ListIcon className="h-6 w-6" />
+      </span>
+      <div>
+        <p className="text-sm font-medium text-slate-600">{title}</p>
+        <p className="mt-1 text-xs text-slate-400">{subtitle}</p>
+      </div>
     </div>
   );
 }

@@ -18,11 +18,13 @@ interface SearchFormProps {
 }
 
 const fieldClass =
-  "w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-800 shadow-sm transition-colors placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100";
+  "w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-800 shadow-sm transition-colors placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100";
 
-function FieldIcon({ children }: { children: React.ReactNode }) {
+function FieldIcon({ children, color }: { children: React.ReactNode; color: string }) {
   return (
-    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+    <span
+      className={`pointer-events-none absolute left-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-white ${color}`}
+    >
       {children}
     </span>
   );
@@ -53,131 +55,135 @@ export default function SearchForm({ onSearch, loading }: SearchFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-panel sm:p-6"
+      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-panel"
     >
-      <div className="mb-4 flex items-center gap-2">
-        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-50">
-          <SearchIcon className="h-3.5 w-3.5 text-indigo-600" />
-        </span>
-        <h2 className="text-sm font-semibold text-slate-800">검색 조건</h2>
-      </div>
+      <div className="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-sky-400" />
 
-      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-5">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="sigunNm" className="text-xs font-medium text-slate-600">
-            시군 <span className="text-indigo-500">*</span>
-          </label>
-          <div className="relative">
-            <FieldIcon>
-              <MapPinIcon className="h-4 w-4" />
-            </FieldIcon>
-            <select
-              id="sigunNm"
-              value={sigunNm}
-              onChange={(e) => setSigunNm(e.target.value)}
-              className={`${fieldClass} appearance-none pr-8`}
+      <div className="p-5 sm:p-6">
+        <div className="mb-4 flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-indigo-500 to-violet-600">
+            <SearchIcon className="h-3.5 w-3.5 text-white" />
+          </span>
+          <h2 className="text-sm font-semibold text-slate-800">검색 조건</h2>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="sigunNm" className="text-xs font-medium text-slate-600">
+              시군 <span className="text-indigo-500">*</span>
+            </label>
+            <div className="relative">
+              <FieldIcon color="bg-indigo-500">
+                <MapPinIcon className="h-3.5 w-3.5" />
+              </FieldIcon>
+              <select
+                id="sigunNm"
+                value={sigunNm}
+                onChange={(e) => setSigunNm(e.target.value)}
+                className={`${fieldClass} appearance-none pr-8`}
+              >
+                <option value="">선택하세요</option>
+                {SIGUN_LIST.map((sigun) => (
+                  <option key={sigun} value={sigun}>
+                    {sigun}
+                  </option>
+                ))}
+              </select>
+              <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="emdNm" className="text-xs font-medium text-slate-600">
+              읍면동
+            </label>
+            <div className="relative">
+              <FieldIcon color="bg-indigo-400">
+                <MapPinIcon className="h-3.5 w-3.5" />
+              </FieldIcon>
+              <input
+                id="emdNm"
+                type="text"
+                value={emdNm}
+                onChange={(e) => setEmdNm(e.target.value)}
+                placeholder="예: 정자동"
+                className={fieldClass}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="indutypeDivNm" className="text-xs font-medium text-slate-600">
+              업종구분
+            </label>
+            <div className="relative">
+              <FieldIcon color="bg-violet-500">
+                <BookIcon className="h-3.5 w-3.5" />
+              </FieldIcon>
+              <input
+                id="indutypeDivNm"
+                list="indutype-options"
+                type="text"
+                value={indutypeDivNm}
+                onChange={(e) => setIndutypeDivNm(e.target.value)}
+                placeholder="예: 보습"
+                className={fieldClass}
+              />
+              <datalist id="indutype-options">
+                {COMMON_INDUTYPE_LIST.map((type) => (
+                  <option key={type} value={type} />
+                ))}
+              </datalist>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="faclyNm" className="text-xs font-medium text-slate-600">
+              학원명
+            </label>
+            <div className="relative">
+              <FieldIcon color="bg-sky-500">
+                <SearchIcon className="h-3.5 w-3.5" />
+              </FieldIcon>
+              <input
+                id="faclyNm"
+                type="text"
+                value={faclyNm}
+                onChange={(e) => setFaclyNm(e.target.value)}
+                placeholder="학원명 검색"
+                className={fieldClass}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-end gap-1.5">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 py-2.5 pl-3 pr-3.5 text-sm font-semibold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none"
             >
-              <option value="">선택하세요</option>
-              {SIGUN_LIST.map((sigun) => (
-                <option key={sigun} value={sigun}>
-                  {sigun}
-                </option>
-              ))}
-            </select>
-            <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              {loading ? (
+                <>
+                  <SpinnerIcon className="h-4 w-4 animate-spin" />
+                  검색 중...
+                </>
+              ) : (
+                <>
+                  <SearchIcon className="h-4 w-4" />
+                  검색
+                </>
+              )}
+            </button>
           </div>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="emdNm" className="text-xs font-medium text-slate-600">
-            읍면동
-          </label>
-          <div className="relative">
-            <FieldIcon>
-              <MapPinIcon className="h-4 w-4" />
-            </FieldIcon>
-            <input
-              id="emdNm"
-              type="text"
-              value={emdNm}
-              onChange={(e) => setEmdNm(e.target.value)}
-              placeholder="예: 정자동"
-              className={fieldClass}
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="indutypeDivNm" className="text-xs font-medium text-slate-600">
-            업종구분
-          </label>
-          <div className="relative">
-            <FieldIcon>
-              <BookIcon className="h-4 w-4" />
-            </FieldIcon>
-            <input
-              id="indutypeDivNm"
-              list="indutype-options"
-              type="text"
-              value={indutypeDivNm}
-              onChange={(e) => setIndutypeDivNm(e.target.value)}
-              placeholder="예: 보습"
-              className={fieldClass}
-            />
-            <datalist id="indutype-options">
-              {COMMON_INDUTYPE_LIST.map((type) => (
-                <option key={type} value={type} />
-              ))}
-            </datalist>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="faclyNm" className="text-xs font-medium text-slate-600">
-            학원명
-          </label>
-          <div className="relative">
-            <FieldIcon>
-              <SearchIcon className="h-4 w-4" />
-            </FieldIcon>
-            <input
-              id="faclyNm"
-              type="text"
-              value={faclyNm}
-              onChange={(e) => setFaclyNm(e.target.value)}
-              placeholder="학원명 검색"
-              className={fieldClass}
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col justify-end gap-1.5">
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex items-center justify-center gap-1.5 rounded-lg bg-indigo-600 py-2.5 pl-3 pr-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-indigo-700 hover:shadow-md active:bg-indigo-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
-          >
-            {loading ? (
-              <>
-                <SpinnerIcon className="h-4 w-4 animate-spin" />
-                검색 중...
-              </>
-            ) : (
-              <>
-                <SearchIcon className="h-4 w-4" />
-                검색
-              </>
-            )}
-          </button>
-        </div>
+        {validationError && (
+          <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-rose-600">
+            <AlertIcon className="h-3.5 w-3.5" />
+            {validationError}
+          </p>
+        )}
       </div>
-
-      {validationError && (
-        <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-rose-600">
-          <AlertIcon className="h-3.5 w-3.5" />
-          {validationError}
-        </p>
-      )}
     </form>
   );
 }

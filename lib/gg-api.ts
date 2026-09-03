@@ -106,9 +106,11 @@ async function fetchAcademyPage(
     `pSize=${encodeURIComponent(String(pSize))}`,
   ];
   if (query.sigunNm) queryParts.push(`SIGUN_NM=${encodeURIComponent(query.sigunNm)}`);
-  if (query.indutypeDivNm) {
-    queryParts.push(`INDUTYPE_DIV_NM=${encodeURIComponent(query.indutypeDivNm)}`);
-  }
+  // ⚠️ INDUTYPE_DIV_NM(업종구분)은 의도적으로 원본 API에 넘기지 않습니다.
+  // 실제 API가 저장하고 있는 업종구분 문자열의 정확한 표기(예: "보습" vs "보습학원" 등
+  // 접미사 포함 여부)를 검증하지 못한 상태라, 정확일치 필터로 넘기면 값이 한 글자만
+  // 달라도 결과가 0건이 되는 문제가 있었습니다. 대신 SIGUN_NM으로만 좁혀서 가져온 뒤
+  // route.ts에서 부분일치(포함) 필터링을 적용해 이 문제를 피합니다.
 
   const url = `${GG_API_BASE_URL}?${queryParts.join("&")}`;
 
@@ -133,9 +135,9 @@ async function fetchAcademyPage(
 }
 
 /**
- * SIGUN_NM / INDUTYPE_DIV_NM 조건으로 서버(pIndex를 늘려가며)에서 전체 페이지를 모아옵니다.
- * EMD_NM(읍면동), 학원명 검색은 API 파라미터로 지원되지 않아 이 함수 밖(route.ts)에서
- * 결과를 받아 부분일치 필터링합니다.
+ * SIGUN_NM 조건으로 서버(pIndex를 늘려가며)에서 전체 페이지를 모아옵니다.
+ * EMD_NM(읍면동), 업종구분, 학원명 검색은 API 파라미터로 신뢰성 있게 지원되지 않아
+ * 이 함수 밖(route.ts)에서 결과를 받아 부분일치 필터링합니다.
  */
 export async function fetchAllAcademies(
   query: AcademySearchQuery

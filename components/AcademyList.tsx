@@ -1,7 +1,7 @@
 "use client";
 
 import FavoriteToggle from "@/components/FavoriteToggle";
-import { BookIcon, MapPinIcon, PhoneIcon } from "@/components/icons";
+import { AlertIcon, BookIcon, MapPinIcon, PhoneIcon } from "@/components/icons";
 import type { Academy } from "@/types/academy";
 
 interface AcademyListProps {
@@ -21,9 +21,14 @@ export default function AcademyList({
 }: AcademyListProps) {
   if (academies.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-1 p-6 text-center">
-        <p className="text-sm font-medium text-slate-500">검색 결과가 없습니다.</p>
-        <p className="text-xs text-slate-400">다른 조건으로 다시 검색해보세요.</p>
+      <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-50 to-rose-50 text-amber-500 ring-1 ring-amber-100">
+          <AlertIcon className="h-6 w-6" />
+        </span>
+        <div>
+          <p className="text-sm font-medium text-slate-600">검색 결과가 없습니다</p>
+          <p className="mt-1 text-xs text-slate-400">다른 조건으로 다시 검색해보세요</p>
+        </div>
       </div>
     );
   }
@@ -39,7 +44,7 @@ export default function AcademyList({
               onClick={() => onSelect(academy)}
               className={`flex w-full items-start gap-3 border-l-[3px] py-3.5 pr-4 text-left transition-colors hover:bg-slate-50 ${
                 active
-                  ? "border-indigo-500 bg-indigo-50/60 pl-[13px]"
+                  ? "border-indigo-500 bg-gradient-to-r from-indigo-50 to-violet-50/50 pl-[13px]"
                   : "border-transparent pl-4"
               }`}
             >

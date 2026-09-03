@@ -115,9 +115,11 @@ API 응답의 `dataReferenceDate` 값에 모두 반영됩니다.
 - 요청주소: `https://openapi.gg.go.kr/Tbinstutm`
 - 필수 파라미터: `KEY`, `Type=json`, `pIndex`, `pSize`
 - 선택 파라미터(필터): `SIGUN_NM`, `EMD_NM`, `INDUTYPE_DIV_NM`, `SIGUN_CD`
-  - 이 프로젝트는 `SIGUN_NM`, `INDUTYPE_DIV_NM`만 원본 API로 전달하고, `EMD_NM`(읍면동)과
-    학원명은 API가 지원하지 않는 조건이라 서버 라우트(`/api/academies`)에서 결과를 받아온 뒤
-    부분일치(포함) 필터링으로 처리합니다.
+  - 이 프로젝트는 `SIGUN_NM`만 원본 API로 전달합니다. `EMD_NM`(읍면동), `INDUTYPE_DIV_NM`(업종
+    구분), 학원명은 원본 API에 정확일치로 넘길 경우 실제 저장된 표기(예: "보습" vs
+    "보습학원")를 확신할 수 없어 값이 조금만 달라도 결과가 0건이 되는 문제가 있었습니다.
+    대신 서버 라우트(`/api/academies`)에서 `SIGUN_NM`으로 받아온 결과에 대해 세 조건 모두
+    부분일치(포함) 필터링으로 안전하게 처리합니다.
   - 한글 파라미터는 `encodeURIComponent`로 인코딩해 요청합니다.
 - 페이지당 최대 200건(`GG_API_PAGE_SIZE`, `lib/constants.ts`)씩 `pIndex`를 늘려가며 호출해
   전체 데이터를 모읍니다(`fetchAllAcademies`, `lib/gg-api.ts`).
