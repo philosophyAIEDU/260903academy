@@ -105,6 +105,41 @@ export interface BreakdownItem extends CodeOption {
   sharePct: number;
 }
 
+/** 경쟁강도/포화도 진단 5단계 */
+export type SaturationLevel = "very_low" | "low" | "normal" | "high" | "very_high";
+
+export interface SaturationResult {
+  level: SaturationLevel;
+  /** localSharePct / baselineSharePct. baseline 비중이 0이면 비교 불가(null) */
+  ratio: number | null;
+  localCount: number;
+  localTotal: number;
+  localSharePct: number;
+  baselineCount: number;
+  baselineTotal: number;
+  baselineSharePct: number;
+  /** 비교 기준 지역 표시명 (예: "광산구 평균") */
+  baselineLabel: string;
+}
+
+export interface GapItem extends CodeOption {
+  localCount: number;
+  baselineCount: number;
+  localSharePct: number;
+  baselineSharePct: number;
+  /** local/baseline 비중 비율. 낮을수록(0에 가까울수록) 이 지역에 상대적으로 부족함 */
+  ratio: number;
+}
+
+export interface GapAnalysisResult {
+  /** 비교 기준 지역 표시명 */
+  baselineLabel: string;
+  /** 비교에 사용한 분류 레벨 이름 (대분류/중분류/소분류) */
+  levelLabel: string;
+  /** 비율이 낮은(부족한) 순으로 정렬, 최대 8개 */
+  items: GapItem[];
+}
+
 export interface CommercialAnalysisResponse {
   scope: {
     sido?: CodeOption;
@@ -124,6 +159,9 @@ export interface CommercialAnalysisResponse {
   industryBreakdown: BreakdownItem[];
   /** 선택한 지역 범위 내 행정동별 분포 (행정동을 아직 특정하지 않았을 때 비교용) */
   dongBreakdown: BreakdownItem[];
+  /** 업종을 선택했을 때만 계산됨 (없으면 null) */
+  saturation: SaturationResult | null;
+  gapAnalysis: GapAnalysisResult;
   meta: RawCommercialStats["meta"];
 }
 

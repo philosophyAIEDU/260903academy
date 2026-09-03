@@ -1,4 +1,9 @@
+"use client";
+
 import { BuildingIcon, ListIcon, MapPinIcon } from "@/components/icons";
+import SaturationCard from "@/components/analysis/SaturationCard";
+import GapAnalysisPanel from "@/components/analysis/GapAnalysisPanel";
+import { downloadCsv } from "@/lib/csv-export";
 import type { BreakdownItem, CommercialAnalysisResponse } from "@/types/commercial";
 
 interface AnalysisResultProps {
@@ -11,6 +16,66 @@ function scopeLabel(scope: CommercialAnalysisResponse["scope"]): string {
   const region = regionParts.length > 0 ? regionParts.join(" > ") : "전체 지역";
   const industry = industryParts.length > 0 ? industryParts.join(" > ") : "전체 업종";
   return `${region} · ${industry}`;
+}
+
+function selectedIndustryName(scope: CommercialAnalysisResponse["scope"]): string {
+  return scope.small?.name ?? scope.mid?.name ?? scope.large?.name ?? "선택 업종";
+}
+
+function exportResultCsv(result: CommercialAnalysisResponse) {
+  const rows: (string | number)[][] = [
+    ["상권분석 결과"],
+    ["조건", scopeLabel(result.scope)],
+    ["데이터 기준", result.meta.dataReferenceMonth ?? "확인 불가"],
+    [],
+    ["구분", "값"],
+    ["선택 조건 점포 수", result.totalCount],
+    ["선택 지역 전체 업종 점포 수", result.regionTotalCount],
+    ["선택 지역 내 비중(%)", result.sharePctOfRegion],
+  ];
+
+  if (result.saturation) {
+    rows.push(
+      [],
+      ["경쟁강도 진단"],
+      ["비교 기준", result.saturation.baselineLabel],
+      ["이 지역 점포 수", result.saturation.localCount],
+      ["이 지역 비중(%)", result.saturation.localSharePct],
+      ["비교 기준 점포 수", result.saturation.baselineCount],
+      ["비교 기준 비중(%)", result.saturation.baselineSharePct],
+      ["밀집 배율", result.saturation.ratio ?? "N/A"]
+    );
+  }
+
+  if (result.industryBreakdown.length > 0) {
+    rows.push(
+      [],
+      ["하위 업종별 분포"],
+      ["업종", "점포 수", "비중(%)"],
+      ...result.industryBreakdown.map((i) => [i.name, i.count, i.sharePct])
+    );
+  }
+
+  if (result.dongBreakdown.length > 0) {
+    rows.push(
+      [],
+      ["행정동별 분포"],
+      ["행정동", "점포 수", "비중(%)"],
+      ...result.dongBreakdown.map((d) => [d.name, d.count, d.sharePct])
+    );
+  }
+
+  if (result.gapAnalysis.items.length > 0) {
+    rows.push(
+      [],
+      [`업종 공백 분석 (${result.gapAnalysis.baselineLabel} 대비)`],
+      ["업종", "이 지역 점포 수", `${result.gapAnalysis.baselineLabel} 점포 수`, "비율(배)"],
+      ...result.gapAnalysis.items.map((g) => [g.name, g.localCount, g.baselineCount, g.ratio])
+    );
+  }
+
+  const scopeSlug = scopeLabel(result.scope).replace(/[\s>·/]+/g, "_");
+  downloadCsv(`상권분석_${scopeSlug}.csv`, rows);
 }
 
 function BreakdownBars({
@@ -63,7 +128,16 @@ function BreakdownBars({
 export default function AnalysisResult({ result }: AnalysisResultProps) {
   return (
     <div className="flex animate-fade-up flex-col gap-4">
-      <p className="text-xs font-medium text-slate-500">{scopeLabel(result.scope)}</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-medium text-slate-500">{scopeLabel(result.scope)}</p>
+        <button
+          type="button"
+          onClick={() => exportResultCsv(result)}
+          className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50"
+        >
+          CSV 다운로드
+        </button>
+      </div>
 
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-3.5 text-white shadow-lg shadow-emerald-500/25 sm:p-4">
@@ -109,6 +183,13 @@ export default function AnalysisResult({ result }: AnalysisResultProps) {
         </div>
       </div>
 
+      {result.saturation && (
+        <SaturationCard
+          saturation={result.saturation}
+          industryName={selectedIndustryName(result.scope)}
+        />
+      )}
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <BreakdownBars
           title="하위 업종별 분포"
@@ -125,6 +206,8 @@ export default function AnalysisResult({ result }: AnalysisResultProps) {
           emptyText="행정동을 이미 선택하셨습니다."
         />
       </div>
+
+      <GapAnalysisPanel gapAnalysis={result.gapAnalysis} />
     </div>
   );
 }

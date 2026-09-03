@@ -100,6 +100,12 @@ export default function AnalysisPage() {
             </p>
           </div>
           <Link
+            href="/analysis/compare"
+            className="hidden shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-white/25 sm:flex"
+          >
+            지역 비교 →
+          </Link>
+          <Link
             href="/"
             className="hidden shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-white/25 sm:flex"
           >
@@ -115,6 +121,12 @@ export default function AnalysisPage() {
             className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm"
           >
             ← 학원 검색으로
+          </Link>
+          <Link
+            href="/analysis/compare"
+            className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm"
+          >
+            지역 비교 →
           </Link>
         </div>
 

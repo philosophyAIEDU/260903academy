@@ -3,7 +3,26 @@
 import { useEffect, useState } from "react";
 import CommercialMap from "@/components/analysis/CommercialMap";
 import { AlertIcon, MapPinIcon, SpinnerIcon } from "@/components/icons";
-import type { CommercialAnalysisQuery, StoreListResponse } from "@/types/commercial";
+import { downloadCsv } from "@/lib/csv-export";
+import type { CommercialAnalysisQuery, Store, StoreListResponse } from "@/types/commercial";
+
+function exportStoresCsv(stores: Store[]) {
+  const rows: (string | number)[][] = [
+    ["업체명", "지점명", "업종(대)", "업종(중)", "업종(소)", "행정동", "주소", "위도", "경도"],
+    ...stores.map((s) => [
+      s.name,
+      s.branch,
+      s.largeName,
+      s.midName,
+      s.smallName,
+      s.dongName,
+      s.address,
+      s.lat,
+      s.lng,
+    ]),
+  ];
+  downloadCsv(`상권분석_업체목록_${stores.length}건.csv`, rows);
+}
 
 interface StoreMapPanelProps {
   /** "분석하기"로 실제 제출된 조건. sigunguCode가 없으면 지도를 보여줄 수 없습니다. */
@@ -86,10 +105,19 @@ export default function StoreMapPanel({ query }: StoreMapPanelProps) {
           </span>
           지도에서 업체 보기
         </h3>
-        {data && !loading && (
-          <span className="text-xs text-slate-400">
-            {data.totalCount.toLocaleString()}개 중 {data.stores.length.toLocaleString()}개 표시
-          </span>
+        {data && !loading && data.stores.length > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-400">
+              {data.totalCount.toLocaleString()}개 중 {data.stores.length.toLocaleString()}개 표시
+            </span>
+            <button
+              type="button"
+              onClick={() => exportStoresCsv(data.stores)}
+              className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50"
+            >
+              CSV 다운로드
+            </button>
+          </div>
         )}
       </div>
 

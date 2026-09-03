@@ -14,6 +14,13 @@ interface RegionIndustryPickerProps {
   onChange: (next: CommercialAnalysisQuery) => void;
   onSubmit: () => void;
   loading: boolean;
+  /** 한 화면에 이 컴포넌트를 여러 번 렌더링할 때(지역 비교 등) input id 충돌을 막기 위한 접두사 */
+  idPrefix?: string;
+  title?: string;
+  /** 지역 비교 화면처럼 제출 버튼을 이 컴포넌트 밖에서 따로 둘 때 숨깁니다 */
+  hideSubmit?: boolean;
+  accentBar?: string;
+  accentIcon?: string;
 }
 
 const selectClass =
@@ -86,7 +93,14 @@ export default function RegionIndustryPicker({
   onChange,
   onSubmit,
   loading,
+  idPrefix = "",
+  title = "지역 · 업종 선택",
+  hideSubmit = false,
+  accentBar = "from-emerald-500 via-teal-500 to-sky-500",
+  accentIcon = "from-emerald-500 to-teal-600",
 }: RegionIndustryPickerProps) {
+  const id = (name: string) => (idPrefix ? `${idPrefix}-${name}` : name);
+
   const filteredSigungu = value.sidoCode
     ? sigungu.filter((s) => s.code.startsWith(value.sidoCode!))
     : sigungu;
@@ -108,19 +122,19 @@ export default function RegionIndustryPicker({
       }}
       className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-panel"
     >
-      <div className="h-1.5 w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500" />
+      <div className={`h-1.5 w-full bg-gradient-to-r ${accentBar}`} />
       <div className="p-5 sm:p-6">
         <div className="mb-4 flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-emerald-500 to-teal-600">
+          <span className={`flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br ${accentIcon}`}>
             <SearchIcon className="h-3.5 w-3.5 text-white" />
           </span>
-          <h2 className="text-sm font-semibold text-slate-800">지역 · 업종 선택</h2>
+          <h2 className="text-sm font-semibold text-slate-800">{title}</h2>
         </div>
 
         <p className="mb-3 text-xs font-medium text-slate-500">지역</p>
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3">
           <Select
-            id="sidoCode"
+            id={id("sidoCode")}
             label="시/도"
             value={value.sidoCode ?? ""}
             onChange={(v) =>
@@ -131,7 +145,7 @@ export default function RegionIndustryPicker({
             icon={<MapPinIcon className="h-3.5 w-3.5" />}
           />
           <Select
-            id="sigunguCode"
+            id={id("sigunguCode")}
             label="시/군/구"
             value={value.sigunguCode ?? ""}
             onChange={(v) => onChange({ ...value, sigunguCode: v || undefined, dongCode: undefined })}
@@ -141,7 +155,7 @@ export default function RegionIndustryPicker({
             icon={<MapPinIcon className="h-3.5 w-3.5" />}
           />
           <Select
-            id="dongCode"
+            id={id("dongCode")}
             label="행정동"
             value={value.dongCode ?? ""}
             onChange={(v) => onChange({ ...value, dongCode: v || undefined })}
@@ -155,7 +169,7 @@ export default function RegionIndustryPicker({
         <p className="mb-3 mt-4 text-xs font-medium text-slate-500">업종</p>
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3">
           <Select
-            id="largeCode"
+            id={id("largeCode")}
             label="대분류"
             value={value.largeCode ?? ""}
             onChange={(v) =>
@@ -166,7 +180,7 @@ export default function RegionIndustryPicker({
             icon={<SearchIcon className="h-3.5 w-3.5" />}
           />
           <Select
-            id="midCode"
+            id={id("midCode")}
             label="중분류"
             value={value.midCode ?? ""}
             onChange={(v) => onChange({ ...value, midCode: v || undefined, smallCode: undefined })}
@@ -176,7 +190,7 @@ export default function RegionIndustryPicker({
             icon={<SearchIcon className="h-3.5 w-3.5" />}
           />
           <Select
-            id="smallCode"
+            id={id("smallCode")}
             label="소분류"
             value={value.smallCode ?? ""}
             onChange={(v) => onChange({ ...value, smallCode: v || undefined })}
@@ -187,23 +201,25 @@ export default function RegionIndustryPicker({
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-sky-600 py-2.5 text-sm font-semibold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none sm:w-auto sm:px-6"
-        >
-          {loading ? (
-            <>
-              <SpinnerIcon className="h-4 w-4 animate-spin" />
-              분석 중...
-            </>
-          ) : (
-            <>
-              <SearchIcon className="h-4 w-4" />
-              분석하기
-            </>
-          )}
-        </button>
+        {!hideSubmit && (
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-sky-600 py-2.5 text-sm font-semibold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none sm:w-auto sm:px-6"
+          >
+            {loading ? (
+              <>
+                <SpinnerIcon className="h-4 w-4 animate-spin" />
+                분석 중...
+              </>
+            ) : (
+              <>
+                <SearchIcon className="h-4 w-4" />
+                분석하기
+              </>
+            )}
+          </button>
+        )}
       </div>
     </form>
   );

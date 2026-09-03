@@ -6,7 +6,11 @@ import type {
   CommercialAnalysisQuery,
   CommercialAnalysisResponse,
   CommercialOptionsResponse,
+  GapAnalysisResult,
+  GapItem,
   RawCommercialStats,
+  SaturationLevel,
+  SaturationResult,
 } from "@/types/commercial";
 
 // JSON 모듈은 stats 필드를 튜플이 아닌 (string|number)[][]로만 추론하므로 unknown을 거쳐 캐스팅합니다.
@@ -79,25 +83,175 @@ function industryMatches(smallCode: string, query: CommercialAnalysisQuery): boo
   return true;
 }
 
+function sumByKey(
+  rows: Array<[string, string, number]>,
+  keyOf: (dongCode: string, smallCode: string) => string
+): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const [dongCode, smallCode, count] of rows) {
+    const key = keyOf(dongCode, smallCode);
+    counts.set(key, (counts.get(key) ?? 0) + count);
+  }
+  return counts;
+}
+
+function totalOf(rows: Array<[string, string, number]>): number {
+  return rows.reduce((sum, [, , count]) => sum + count, 0);
+}
+
+function round1(n: number): number {
+  return Math.round(n * 10) / 10;
+}
+
 function buildBreakdown(
   rows: Array<[string, string, number]>,
   keyOf: (dongCode: string, smallCode: string) => string,
   names: Record<string, string>,
   total: number
 ): BreakdownItem[] {
-  const counts = new Map<string, number>();
-  for (const [dongCode, smallCode, count] of rows) {
-    const key = keyOf(dongCode, smallCode);
-    counts.set(key, (counts.get(key) ?? 0) + count);
-  }
+  const counts = sumByKey(rows, keyOf);
   return Array.from(counts.entries())
     .map(([code, count]) => ({
       code,
       name: names[code] ?? code,
       count,
-      sharePct: total > 0 ? Math.round((count / total) * 1000) / 10 : 0,
+      sharePct: total > 0 ? round1((count / total) * 100) : 0,
     }))
     .sort((a, b) => b.count - a.count);
+}
+
+/**
+ * 선택한 지역의 "한 단계 위" 지역 조건과 표시용 라벨을 계산합니다.
+ * 경쟁강도/업종공백 분석의 비교 기준(baseline)으로 씁니다
+ * (행정동 선택 시 그 시군구 평균과, 시군구 선택 시 그 시도 평균과, 그 외엔 전체 평균과 비교).
+ */
+function baselineRegionOf(query: CommercialAnalysisQuery): {
+  query: CommercialAnalysisQuery;
+  label: string;
+} {
+  if (query.dongCode) {
+    const sigunguCode = query.sigunguCode ?? sigunguCodeOf(query.dongCode);
+    return {
+      query: { sigunguCode },
+      label: `${stats.sigunguNames[sigunguCode] ?? sigunguCode} 평균`,
+    };
+  }
+  if (query.sigunguCode) {
+    const sidoCode = query.sidoCode ?? sidoCodeOf(query.sigunguCode);
+    return { query: { sidoCode }, label: `${stats.sidoNames[sidoCode] ?? sidoCode} 평균` };
+  }
+  return { query: {}, label: "전체 지역 평균" };
+}
+
+function levelOf(ratio: number): SaturationLevel {
+  if (ratio < 0.5) return "very_low";
+  if (ratio < 0.8) return "low";
+  if (ratio <= 1.2) return "normal";
+  if (ratio <= 2.0) return "high";
+  return "very_high";
+}
+
+/**
+ * 선택한 업종이 선택한 지역에 "상대적으로" 얼마나 밀집해 있는지 진단합니다(경쟁강도/포화도).
+ * 비교 기준은 한 단계 넓은 지역의 같은 업종 비중이며, 업종을 선택하지 않았으면 진단할 수
+ * 없어 null을 반환합니다.
+ */
+export function analyzeSaturation(query: CommercialAnalysisQuery): SaturationResult | null {
+  if (!query.largeCode && !query.midCode && !query.smallCode) return null;
+
+  const localRows = stats.stats.filter(([dongCode]) => regionMatches(dongCode, query));
+  const localMatched = localRows.filter(([, smallCode]) => industryMatches(smallCode, query));
+  const localTotal = totalOf(localRows);
+  const localCount = totalOf(localMatched);
+
+  const { query: baselineQuery, label: baselineLabel } = baselineRegionOf(query);
+  const baselineRows = stats.stats.filter(([dongCode]) => regionMatches(dongCode, baselineQuery));
+  const baselineMatched = baselineRows.filter(([, smallCode]) => industryMatches(smallCode, query));
+  const baselineTotal = totalOf(baselineRows);
+  const baselineCount = totalOf(baselineMatched);
+
+  const localSharePct = localTotal > 0 ? (localCount / localTotal) * 100 : 0;
+  const baselineSharePct = baselineTotal > 0 ? (baselineCount / baselineTotal) * 100 : 0;
+  const ratio = baselineSharePct > 0 ? localSharePct / baselineSharePct : null;
+
+  return {
+    level: ratio !== null ? levelOf(ratio) : "normal",
+    ratio: ratio !== null ? round1(ratio) : null,
+    localCount,
+    localTotal,
+    localSharePct: round1(localSharePct),
+    baselineCount,
+    baselineTotal,
+    baselineSharePct: round1(baselineSharePct),
+    baselineLabel,
+  };
+}
+
+const GAP_MIN_BASELINE_COUNT = 5; // 너무 희귀한 업종(노이즈)은 "공백"으로 취급하지 않음
+const GAP_MAX_ITEMS = 8;
+
+/**
+ * 선택한 지역에서, 비교 기준(baseline) 대비 상대적으로 "부족한" 업종을 찾습니다.
+ * 업종 필터를 어디까지 선택했는지에 따라 비교 레벨이 달라집니다
+ * (선택 없음 → 대분류끼리, 대분류만 → 그 안의 중분류끼리, 중분류까지 → 그 안의 소분류끼리).
+ */
+export function analyzeGaps(query: CommercialAnalysisQuery): GapAnalysisResult {
+  const { label: baselineLabel } = baselineRegionOf(query);
+
+  // 이미 소분류까지 선택했으면 그 안에서 더 내려갈 레벨이 없어 비교가 성립하지 않습니다
+  // (industryBreakdown이 같은 경우 빈 배열을 주는 것과 동일한 이유).
+  if (query.smallCode) {
+    return { baselineLabel, levelLabel: "소분류", items: [] };
+  }
+
+  const localRows = stats.stats.filter(([dongCode]) => regionMatches(dongCode, query));
+  const { query: baselineQuery } = baselineRegionOf(query);
+  const baselineRows = stats.stats.filter(([dongCode]) => regionMatches(dongCode, baselineQuery));
+
+  let keyOf: (dongCode: string, smallCode: string) => string;
+  let levelLabel: string;
+  if (query.midCode) {
+    keyOf = (_, smallCode) => smallCode;
+    levelLabel = "소분류";
+  } else if (query.largeCode) {
+    keyOf = (_, smallCode) => midCodeOf(smallCode);
+    levelLabel = "중분류";
+  } else {
+    keyOf = (_, smallCode) => largeCodeOf(smallCode);
+    levelLabel = "대분류";
+  }
+
+  // local/baseline 모두 query에 이미 선택된 업종 필터(large/mid) 안으로 좁혀서 비교해야
+  // 의미가 있습니다(예: 대분류=음식을 선택했으면 baseline도 음식 안에서의 분포와 비교).
+  const localFiltered = localRows.filter(([, smallCode]) => industryMatches(smallCode, query));
+  const baselineFiltered = baselineRows.filter(([, smallCode]) => industryMatches(smallCode, query));
+
+  const localCounts = sumByKey(localFiltered, keyOf);
+  const baselineCounts = sumByKey(baselineFiltered, keyOf);
+  const localTotal = totalOf(localFiltered);
+  const baselineTotal = totalOf(baselineFiltered);
+
+  const items: GapItem[] = [];
+  for (const [code, baselineCount] of baselineCounts) {
+    if (baselineCount < GAP_MIN_BASELINE_COUNT) continue;
+    const localCount = localCounts.get(code) ?? 0;
+    const localSharePct = localTotal > 0 ? (localCount / localTotal) * 100 : 0;
+    const baselineSharePct = baselineTotal > 0 ? (baselineCount / baselineTotal) * 100 : 0;
+    const ratio = baselineSharePct > 0 ? localSharePct / baselineSharePct : 0;
+    items.push({
+      code,
+      name: stats.industryNames[code] ?? code,
+      localCount,
+      baselineCount,
+      localSharePct: round1(localSharePct),
+      baselineSharePct: round1(baselineSharePct),
+      ratio: round1(ratio),
+    });
+  }
+
+  items.sort((a, b) => a.ratio - b.ratio || b.baselineCount - a.baselineCount);
+
+  return { baselineLabel, levelLabel, items: items.slice(0, GAP_MAX_ITEMS) };
 }
 
 /**
@@ -156,10 +310,11 @@ export function analyzeCommercial(query: CommercialAnalysisQuery): CommercialAna
     scope,
     totalCount,
     regionTotalCount,
-    sharePctOfRegion:
-      regionTotalCount > 0 ? Math.round((totalCount / regionTotalCount) * 1000) / 10 : 0,
+    sharePctOfRegion: regionTotalCount > 0 ? round1((totalCount / regionTotalCount) * 100) : 0,
     industryBreakdown,
     dongBreakdown,
+    saturation: analyzeSaturation(query),
+    gapAnalysis: analyzeGaps(query),
     meta: stats.meta,
   };
 }
