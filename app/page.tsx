@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useState } from "react";
 import SearchForm from "@/components/SearchForm";
 import AcademyMap from "@/components/AcademyMap";
@@ -87,12 +88,27 @@ export default function HomePage() {
               경기데이터드림 공공데이터 기반 · 실시간 지도 검색
             </p>
           </div>
-          <span className="hidden shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white ring-1 ring-white/25 backdrop-blur sm:flex">
+          <Link
+            href="/analysis"
+            className="hidden shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-white/25 sm:flex"
+          >
+            상권분석 →
+          </Link>
+          <span className="hidden shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white ring-1 ring-white/25 backdrop-blur lg:flex">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
             데이터 기준 {DATA_REFERENCE_DATE}
           </span>
         </div>
       </header>
+
+      <div className="mx-auto flex max-w-7xl justify-end px-4 pt-3 sm:hidden">
+        <Link
+          href="/analysis"
+          className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm"
+        >
+          상권분석 보기 →
+        </Link>
+      </div>
 
       <main className="mx-auto flex max-w-7xl flex-col gap-4 p-4 sm:gap-5 sm:p-6">
         <SearchForm onSearch={runSearch} loading={loading} />
