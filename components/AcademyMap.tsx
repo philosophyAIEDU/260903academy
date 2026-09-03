@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AlertIcon, SpinnerIcon } from "@/components/icons";
+import { loadKakaoSdk } from "@/lib/kakao-map-loader";
 import type { Academy } from "@/types/academy";
 
 interface AcademyMapProps {
@@ -11,7 +12,6 @@ interface AcademyMapProps {
 }
 
 const DEFAULT_CENTER = { lat: 37.4138, lng: 127.5183 }; // 경기도청 부근 기본 좌표
-const KAKAO_SDK_ID = "kakao-maps-sdk";
 
 function escapeHtml(value: string): string {
   return value
@@ -30,49 +30,6 @@ function buildInfoWindowContent(academy: Academy): string {
       <p style="margin:0;color:#475569;">교습과정: ${escapeHtml(academy.courseClass || "정보 없음")}</p>
     </div>
   `;
-}
-
-/** 카카오맵 JS SDK를 1회만 로드하고, 이후 호출은 캐시된 Promise를 재사용합니다. */
-let kakaoSdkLoadPromise: Promise<void> | null = null;
-
-function loadKakaoSdk(appKey: string): Promise<void> {
-  if (typeof window === "undefined") {
-    return Promise.reject(new Error("브라우저 환경이 아닙니다."));
-  }
-  if (window.kakao?.maps) {
-    return Promise.resolve();
-  }
-  if (kakaoSdkLoadPromise) {
-    return kakaoSdkLoadPromise;
-  }
-
-  kakaoSdkLoadPromise = new Promise((resolve, reject) => {
-    const existing = document.getElementById(KAKAO_SDK_ID) as HTMLScriptElement | null;
-
-    const handleLoad = () => {
-      window.kakao.maps.load(() => resolve());
-    };
-
-    if (existing) {
-      existing.addEventListener("load", handleLoad, { once: true });
-      existing.addEventListener("error", () => reject(new Error("카카오맵 스크립트 로드 실패")), {
-        once: true,
-      });
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.id = KAKAO_SDK_ID;
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(appKey)}&autoload=false`;
-    script.async = true;
-    script.addEventListener("load", handleLoad, { once: true });
-    script.addEventListener("error", () => reject(new Error("카카오맵 스크립트 로드 실패")), {
-      once: true,
-    });
-    document.head.appendChild(script);
-  });
-
-  return kakaoSdkLoadPromise;
 }
 
 export default function AcademyMap({ academies, selectedId, onMarkerSelect }: AcademyMapProps) {

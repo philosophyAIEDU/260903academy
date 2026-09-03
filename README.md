@@ -140,8 +140,8 @@ API 응답의 `dataReferenceDate` 값에 모두 반영됩니다.
 ```
 data/raw/*.csv              원본 CSV (지역별로 여러 개, 이 저장소에 커밋됨)
         │  node scripts/build-commercial-stats.mjs
-        ▼
-data/processed/commercial-stats.json   지역×업종별 집계 결과 (앱이 실제로 읽는 파일)
+        ├──▶ data/processed/commercial-stats.json   지역×업종별 집계 결과 (개수·비중·드릴다운용)
+        └──▶ public/commercial-stores/<시군구코드>.json   시군구별 업체 목록 (지도 마커·업체명용)
 ```
 
 - `scripts/build-commercial-stats.mjs`가 `data/raw/`의 모든 CSV를 읽어 **행정동×업종소분류
@@ -152,9 +152,21 @@ data/processed/commercial-stats.json   지역×업종별 집계 결과 (앱이 �
   ⚠️ **집계는 "몇 개인지"만 압축하는 것이지 데이터가 줄어드는 게 아닙니다** — 각 그룹의 점포
   수를 모두 더하면 원본 행 수와 정확히 일치합니다(스크립트 실행 시 콘솔에 두 숫자가 모두
   출력되어 바로 검증할 수 있습니다).
-- `lib/commercial.ts`가 이 JSON을 읽어 지역/업종 옵션 목록, 조건별 집계·비중·드릴다운을
+- 같은 스크립트가 **업체명·주소·좌표가 담긴 원본 행**도 시군구 단위로 나눠
+  `public/commercial-stores/<시군구코드>.json`에 저장합니다("이 근처에 어떤 업체가 있는지",
+  "카페가 몇 개인지"처럼 개별 업체 단위 질문에 답하기 위함). `data/processed/` 대신
+  `public/`에 두는 이유: 서버리스 함수(API 라우트)가 **런타임에 계산된 파일명**
+  (`${시군구코드}.json`)을 `fs`로 직접 읽으면 Next.js 배포 트레이싱이 그 파일을 감지하지
+  못해 실제 배포본에서 파일이 함수에 빠질 수 있습니다. `public/`의 정적 파일은 항상 같은
+  오리진에서 서빙되는 게 보장되므로, API 라우트가 `fetch`로 안전하게 가져옵니다.
+- `lib/commercial.ts`가 집계 JSON을 읽어 지역/업종 옵션 목록, 조건별 집계·비중·드릴다운을
   계산합니다. `app/api/commercial-analysis/route.ts`(분석 결과)와
   `app/api/commercial-analysis/options/route.ts`(드롭다운 옵션)가 이를 사용합니다.
+- `lib/commercial-stores.ts`가 `public/commercial-stores/`에서 시군구 단위 업체 목록을
+  가져와 지역/업종 조건으로 필터링합니다. `app/api/commercial-analysis/stores/route.ts`가
+  이를 사용하며, `components/analysis/CommercialMap.tsx`(카카오맵, `lib/kakao-map-loader.ts`
+  공유 SDK 로더 사용)가 결과를 마커로 표시합니다. 업체가 많으면 지도 성능을 위해
+  대표 300개만 균등 샘플링해서 보여주고, 실제 총 개수는 별도로 표시합니다.
 
 ### 지역이 아직 일부만 있는 이유
 
@@ -164,5 +176,11 @@ data/processed/commercial-stats.json   지역×업종별 집계 결과 (앱이 �
 
 **지역을 추가하려면:**
 1. 같은 형식(소상공인시장진흥공단 상가업소정보 CSV)의 다른 지역 파일을 `data/raw/`에 추가
-2. `node scripts/build-commercial-stats.mjs` 재실행 → `data/processed/commercial-stats.json` 갱신
+2. `node scripts/build-commercial-stats.mjs` 재실행 → `data/processed/commercial-stats.json`과
+   `public/commercial-stores/*.json`이 전체(기존 지역 포함) 다시 생성됩니다
 3. 커밋 & 배포 — 코드 변경 없이 드롭다운에 새 지역이 자동으로 나타납니다
+
+⚠️ **저장소 용량 참고**: 지역 1개(전남·광주)당 원본 CSV 약 99MB + 업체 목록 파티션 약
+24MB가 저장소에 쌓입니다. 전국(17개 시/도)까지 다 채우면 수 GB 규모가 될 수 있어, 나중에는
+원본 CSV(`data/raw/`)를 git 히스토리에서 정리하고 집계·파티션 결과만 남기는 것을 고려해볼
+수 있습니다(현재는 재처리에 대비해 원본을 그대로 두었습니다).

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import RegionIndustryPicker from "@/components/analysis/RegionIndustryPicker";
 import AnalysisResult from "@/components/analysis/AnalysisResult";
+import StoreMapPanel from "@/components/analysis/StoreMapPanel";
 import DataSourceNotice from "@/components/DataSourceNotice";
 import { AlertIcon, SearchIcon } from "@/components/icons";
 import type {
@@ -34,6 +35,9 @@ export default function AnalysisPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
+  // "분석하기"로 실제 제출된 조건 스냅샷. 지도 패널은 이 값이 바뀔 때만 다시 불러옵니다
+  // (드롭다운을 만지는 동안 매번 지도를 다시 불러오지 않도록 query와 분리해서 관리).
+  const [submittedQuery, setSubmittedQuery] = useState<CommercialAnalysisQuery | null>(null);
 
   useEffect(() => {
     fetch("/api/commercial-analysis/options")
@@ -65,6 +69,7 @@ export default function AnalysisPage() {
         return;
       }
       setResult(body);
+      setSubmittedQuery(query);
     } catch {
       setError("네트워크 오류로 분석 결과를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
       setResult(null);
@@ -156,7 +161,12 @@ export default function AnalysisPage() {
           </div>
         )}
 
-        {!loading && !error && hasAnalyzed && result && <AnalysisResult result={result} />}
+        {!loading && !error && hasAnalyzed && result && (
+          <>
+            <AnalysisResult result={result} />
+            <StoreMapPanel query={submittedQuery} />
+          </>
+        )}
 
         {!loading && !hasAnalyzed && options && options.sido.length > 0 && (
           <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-panel">
