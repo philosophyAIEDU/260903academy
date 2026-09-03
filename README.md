@@ -143,6 +143,14 @@ API 응답의 `dataReferenceDate` 값에 모두 반영됩니다.
   선택된 지역·업종 범위 안에서, 샘플링 이전의 전체 목록을 대상으로 검색하므로(지도에는 최대
   300개만 표시되지만) 표시되지 않은 업체도 찾을 수 있습니다(`nameQuery` 파라미터,
   `lib/commercial-stores.ts`).
+- **AI 상권 분석가**: 현재 분석 결과(점포 수·경쟁강도·업종 공백 등)를 근거로 Google Gemini와
+  대화하며 조언을 받을 수 있는 챗봇입니다. **사용자가 자신의 Gemini API 키를 직접 입력**하며,
+  이 키는 브라우저 `localStorage`에만 저장되고 서버에는 저장·로깅되지 않습니다 — 요청마다
+  서버(`app/api/ai-analysis/route.ts`)를 한 번 거쳐 Gemini에 전달될 뿐입니다(CORS 문제 없이
+  안정적으로 호출하기 위함). 대화 상태는 Gemini API 특성상 매 턴 전체 이력을 다시 보내는
+  방식으로 유지됩니다(`hooks/useGeminiApiKey.ts`, `components/analysis/AIAnalystChat.tsx`,
+  `lib/gemini-prompt.ts`). 기본 모델은 `lib/ai-constants.ts`의 `GEMINI_MODEL`
+  (`gemini-3.5-flash-lite`)이며, 이 상수 하나만 바꾸면 다른 모델로 전환됩니다.
 
 ### 왜 오픈API가 아니라 정적 파일 기반인가
 

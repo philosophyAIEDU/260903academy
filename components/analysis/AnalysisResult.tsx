@@ -3,6 +3,7 @@
 import { BuildingIcon, ListIcon, MapPinIcon } from "@/components/icons";
 import SaturationCard from "@/components/analysis/SaturationCard";
 import GapAnalysisPanel from "@/components/analysis/GapAnalysisPanel";
+import AIAnalystChat from "@/components/analysis/AIAnalystChat";
 import { downloadCsv } from "@/lib/csv-export";
 import type { BreakdownItem, CommercialAnalysisResponse } from "@/types/commercial";
 
@@ -208,6 +209,8 @@ export default function AnalysisResult({ result }: AnalysisResultProps) {
       </div>
 
       <GapAnalysisPanel gapAnalysis={result.gapAnalysis} />
+
+      <AIAnalystChat result={result} />
     </div>
   );
 }
