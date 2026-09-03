@@ -124,6 +124,18 @@ export default function RegionIndustryPicker({
     onChange({ ...value, smallCode: code || undefined });
   }
 
+  // 상위 선택지와 무관한 항목이 뒤 단계에 섞여 나오지 않도록, 지역코드(시도 2자 ⊂ 시군구 5자 ⊂
+  // 행정동 8자)와 업종코드(대분류 2자 ⊂ 중분류 4자 ⊂ 소분류 6자)의 접두사 계층 구조를 이용해
+  // 상위 선택과 연관된 항목만 남깁니다.
+  const filteredSigungu = value.sidoCode
+    ? sigungu.filter((s) => s.code.startsWith(value.sidoCode!))
+    : sigungu;
+  const filteredDong = value.sigunguCode
+    ? dong.filter((d) => d.code.startsWith(value.sigunguCode!))
+    : [];
+  const filteredMid = value.largeCode ? mid.filter((m) => m.code.startsWith(value.largeCode!)) : [];
+  const filteredSmall = value.midCode ? small.filter((s) => s.code.startsWith(value.midCode!)) : [];
+
   const hasAnyFilter = Boolean(
     value.sidoCode || value.sigunguCode || value.dongCode || value.largeCode || value.midCode || value.smallCode
   );
@@ -189,7 +201,7 @@ export default function RegionIndustryPicker({
                 label="시/군/구"
                 value={value.sigunguCode ?? ""}
                 onChange={handleSigunguChange}
-                options={sigungu}
+                options={filteredSigungu}
                 disabled={!value.sidoCode}
                 color="bg-indigo-600"
                 icon={<MapPinIcon className="h-3.5 w-3.5" />}
@@ -199,7 +211,7 @@ export default function RegionIndustryPicker({
                 label="행정동"
                 value={value.dongCode ?? ""}
                 onChange={handleDongChange}
-                options={dong}
+                options={filteredDong}
                 disabled={!value.sigunguCode}
                 color="bg-indigo-600"
                 icon={<MapPinIcon className="h-3.5 w-3.5" />}
@@ -235,7 +247,7 @@ export default function RegionIndustryPicker({
                 label="중분류"
                 value={value.midCode ?? ""}
                 onChange={handleMidChange}
-                options={mid}
+                options={filteredMid}
                 disabled={!value.largeCode}
                 color="bg-amber-600"
                 icon={<SearchIcon className="h-3.5 w-3.5" />}
@@ -245,7 +257,7 @@ export default function RegionIndustryPicker({
                 label="소분류"
                 value={value.smallCode ?? ""}
                 onChange={handleSmallChange}
-                options={small}
+                options={filteredSmall}
                 disabled={!value.midCode}
                 color="bg-amber-600"
                 icon={<SearchIcon className="h-3.5 w-3.5" />}
